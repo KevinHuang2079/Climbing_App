@@ -1,0 +1,88 @@
+.TopSection{
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 10px 20px; //top bottom 10, right left 20
+    height: 50px;
+    border-bottom: 1px solid lightgray;
+    position: sticky;
+    background-color: white;
+    top: 0;
+
+    .Left{
+        display: flex;
+        align-items: center;
+        gap: 30px;
+        .HomeSpan {
+            font-weight: bold;
+            text-decoration: none;
+        }
+        img{
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            object-fit: cover;
+            //border: 1px solid lightpurple;
+        }
+        .Search{
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            border: 1px solid lightgrey;
+            border-radius: 5px;
+            padding: 5px;
+
+            input{
+                border: none;
+                width: 500px;
+            }
+        }
+    }
+    .Right{
+        display: flex;
+        align-items: center;
+        gap: 20px;
+        .icons svg{
+            padding: 10px;
+            gap: 10px;
+            width: 20px;
+            height: 20px;
+        }
+        .User{
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-weight: 500;
+            padding: 8px 16px;
+            cursor: pointer;
+            img{
+                width: 40px;
+                height: 40px;
+                border-radius: 50%;
+                object-fit: cover;
+            }
+            span{
+                font: 500;
+            }
+        }
+        .Dropdown{
+            display: flex;
+            flex-direction: column;
+            position: absolute;
+            top: 100%;
+            right: 0;
+            background-color: #fff;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            padding: 8px 0;
+            min-width: 150px;
+            z-index: 1;
+            height: 180px;
+            .DropdownItem{
+                padding: 12px 16px;
+                cursor: pointer;
+                text-decoration: none;
+                color: black;
+            }
+        }
+    }
+}

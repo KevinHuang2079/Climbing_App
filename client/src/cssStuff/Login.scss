@@ -1,0 +1,41 @@
+.mainContainer {
+    .usernameInput {
+        display: flex;
+        flex-direction: column;
+        gap:30px;
+
+        .errorLabel {
+
+            .inputBox {
+                background-color: white;
+                border: none;
+                border-bottom: 1px solid lightgray;
+                padding: 20px;
+            }
+        }
+    }    
+    .passwordInput {
+        display: flex;
+        flex-direction: column;
+        gap:30px;
+        .errorLabel {
+            .inputBox {
+                background-color: white;
+                border: none;
+                border-bottom: 1px solid lightgray;
+                padding: 20px;
+                width: 250px;
+            }
+        }
+    } 
+    .inputContainer {
+        .loginButton{
+            width: 50%;
+            padding: 10px;
+            border: none;
+            background-color: aquamarine;
+            font-weight: bold;
+            cursor: pointer;
+        }
+    }
+}

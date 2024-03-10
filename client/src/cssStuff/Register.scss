@@ -1,0 +1,55 @@
+.mainContainer {
+    // Common styles for input containers
+    .passwordInput,
+    .emailInput,
+    .nameInput {
+        display: flex;
+        flex-direction: column;
+        gap: 30px;
+
+        .inputBox {
+            background-color: white;
+            border: none;
+            border-bottom: 1px solid lightgray;
+            padding: 20px;
+        }
+
+        .errorLabel {
+            // Add styling for error label if needed
+        }
+    }
+
+    // Styles for the username input container
+    .usernameInput {
+        display: flex;
+        flex-direction: column;
+        gap: 30px;
+
+        .inputBox {
+            background-color: white;
+            border: none;
+            border-bottom: 1px solid lightgray;
+            padding: 20px;
+            width: 250px;
+        }
+
+        .errorLabel {
+            // Add styling for error label if needed
+        }
+    }
+
+    // Styles for button container
+    .buttonContainer {
+        display: flex;
+        justify-content: center;
+
+        .registerButton {
+            width: 50%;
+            padding: 10px;
+            border: none;
+            background-color: aquamarine;
+            font-weight: bold;
+            cursor: pointer;
+        }
+    }
+}

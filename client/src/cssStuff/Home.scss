@@ -1,0 +1,66 @@
+.home-container {
+    height: 100vh;
+    background-color: rgb(193, 190, 255);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    .card {
+        width: 60%;
+        display: flex;
+        border-radius: 10px;
+        min-height: 600px;
+        overflow: hidden;
+        background-color: white;
+
+        .left {
+            flex: 1;
+            background: linear-gradient(rgba(56, 25, 117, 0.5), rgba(39, 11, 96, 0.5)), url("https://media.istockphoto.com/id/1199153135/photo/carefree-mature-man-having-fun-on-chain-swing-ride-in-amusement-park.jpg?s=612x612&w=0&k=20&c=3x62R_bhsA6f2rP3H8S88zSDNEstCnVNqTpzaPyz6Fs=") center;
+            background-size: cover;
+            padding: 60px;
+            display: flex;
+            flex-direction: column;
+            gap: 30px;
+            color: white;
+
+            h1 {
+                font-size: 100px;
+                line-height: 80px;
+            }
+
+            p {
+                word-wrap: break-word;
+            }
+        }
+
+        .right {
+            flex: 1;
+            padding: 50px;
+            display: flex;
+            flex-direction: column;
+            gap: 50px;
+            justify-content: center;
+
+            .form-container {
+                display: flex;
+                flex-direction: column;
+                justify-content: center;
+                gap: 30px;
+
+                h2 {
+                    color: purple;
+                }
+
+                button {
+                    width: 50%;
+                    padding: 10px;
+                    border: none;
+                    background-color: white;
+                    color: rebeccapurple;
+                    font-weight: bold;
+                    cursor: pointer;
+                }
+            }
+        }
+    }
+}
