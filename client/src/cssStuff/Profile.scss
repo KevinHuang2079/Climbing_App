@@ -1,0 +1,43 @@
+.Profile{
+    .User{
+        display: flex;
+        align-items: center;
+        flex: 0 0 auto; /* Allow the width to be auto */
+        border-right: 1px solid lightgray;
+        border-bottom: 1px solid lightgray;
+        margin-right: 10px; /* Add margin for spacing */
+        
+        img{
+            width: 200px;
+            height: 200px;
+            border-radius: 50%;
+            object-fit: cover;
+            cursor: pointer;
+        }
+        span{
+            cursor: pointer;
+        }
+        .FollowSection{
+            flex: 2;
+            padding: 40px;
+            gap: 40px;
+            display: flex;
+            span{
+                padding: 40px;
+            }
+        }
+    }
+    .Activity{
+        flex: 2;
+        padding: 40px;
+
+
+        .PopularActivity{
+
+        }
+        .RecentActivity{
+
+        }
+    }
+
+}

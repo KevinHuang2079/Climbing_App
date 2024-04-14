@@ -56,6 +56,10 @@
     ]
   },
   "devDependencies": {
+<<<<<<< HEAD
+    "@babel/plugin-proposal-private-property-in-object": "^7.21.11",
+=======
+>>>>>>> origin/master
     "react-scripts": "^5.0.1"
   }
 }

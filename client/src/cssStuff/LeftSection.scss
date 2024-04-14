@@ -5,6 +5,10 @@
         position: sticky;
         top: 70px;
         border-right: 1px solid lightgray;
+<<<<<<< HEAD
+
+=======
+>>>>>>> origin/master
         .menu{
             display: flex;
             flex-direction: column;
@@ -18,10 +22,17 @@
                     height: 50px;
                     border-radius: 50%;
                     object-fit: cover;
+<<<<<<< HEAD
+                    //border-bottom: .5px solid purple;
+                }
+                span{
+
+=======
                     border-bottom: .5px solid purple;
                 }
                 span{
                     
+>>>>>>> origin/master
                 }
             }
         }
