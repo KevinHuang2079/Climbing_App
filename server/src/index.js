@@ -5,7 +5,7 @@ const cookieParser = require("cookie-parser");
 
 
 const corsOptions = {
-  origin: 'localhost:3000/ClimbingApp',
+  origin: 'localhost:5000/ClimbingApp',
   methods: ['GET', 'POST'],
   allowedHeaders: ['Content-Type', 'Authorization'],
   credentials: true

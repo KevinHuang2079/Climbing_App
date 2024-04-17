@@ -46,7 +46,7 @@ function BuildDashboard({ userID }) {
         <div>
             <TopSection userID={userID} username={userData.username} />
             <div style = {{display: "flex"}}> 
-                <LeftSection />
+                <LeftSection userID={userID}/>
                 <div style={{ flex: 6}}>
                     <MainSection />
                 </div>

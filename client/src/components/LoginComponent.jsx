@@ -47,7 +47,7 @@ function Login({ Access, SetAccess }) {
             console.log('Login successful:', data);
             const userID = data._id;
             SetAccess(true);
-            navigate(`/profile/home/${userID}`);
+            navigate(`/profile/dashboard/${userID}`);
             
         } catch (error) {
             setPasswordError('Incorrect password');   

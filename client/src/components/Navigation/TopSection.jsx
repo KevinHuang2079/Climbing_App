@@ -14,7 +14,7 @@ const TopSection = ({ userID, username }) => {
     return (
         <div className="TopSection">
             <div className="Left">
-                <Link to={`/profile/home/${userID}`}>   
+                <Link to={`/profile/dashboard/${userID}`}>   
                     <img src="https://images.vexels.com/media/users/3/131521/isolated/preview/a9a148c24c3df31eb153c25aa8287e0a-mountain-climbing-circle-icon.png" alt=""/> 
                     <span className="HomeSpan"> ClimbingApp </span>
                 </Link> 
