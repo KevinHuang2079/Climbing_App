@@ -1,5 +1,5 @@
 import React from 'react';
-import ShowClimbs from '../components/ClimbsComponent';
+import ShowClimbs from '../components/ClimbsStuff/ClimbsComponent';
 import { useParams } from 'react-router-dom';
 
 function ClimbsPage() {

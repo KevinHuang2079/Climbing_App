@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
-import HomeComponent from "./components/HomeComponent"
+import HomeComponent from "./components/HomePage/HomeComponent"
 import ProfilePage from "./pages/ProfilePage.jsx"
 import DashboardPage from './pages/DashboardPage.jsx';
 import SettingsPage from './pages/SettingsPage.jsx';

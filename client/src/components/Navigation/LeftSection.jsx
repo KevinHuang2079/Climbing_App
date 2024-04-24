@@ -4,7 +4,6 @@ import '../../cssStuff/LeftSection.scss';
 
 
 const LeftSection = ({userID}) => {
-    
     return(
         <div className="LeftSection">
             <div className="container">
