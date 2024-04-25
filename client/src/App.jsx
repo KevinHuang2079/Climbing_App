@@ -7,7 +7,8 @@ import SettingsPage from './pages/SettingsPage.jsx';
 import ClimbsPage from './pages/ClimbsPage.jsx';
 import ShowFollowers from './components/Profile/Followers';
 import ShowFollowing from './components/Profile/Following';
-import Profile from "./components/Profile/Profile"
+import Profile from "./components/Profile/ProfileComponent"
+import FriendsComponent from './components/FriendsStuff/FriendsComponent';
 
 
 
@@ -36,9 +37,9 @@ function App() {
                 <Route path="/profile/climbs/:userID" element={<ProtectedRoute><ClimbsPage/></ProtectedRoute>}></Route>
                 <Route path="/profile/:userID" element={<ProtectedRoute><Profile/></ProtectedRoute>}></Route>
                 
-                <Route path={`/profile/dashboard/:userID/friends`} element={<ProtectedRoute><Profile/></ProtectedRoute>} />
-                <Route path={`/profile/dashboard/:userID/groups`} element={<ProtectedRoute><Profile/></ProtectedRoute>} />
-                <Route path={`/profile/dashboard/:userID/climbs`} element={<ProtectedRoute><Profile/></ProtectedRoute>} />
+                {/* <Route path={`/profile/dashboard/:userID/friends`} element={<ProtectedRoute><FriendsComponent/></ProtectedRoute>} /> */}
+                {/* <Route path={`/profile/dashboard/:userID/groups`} element={<ProtectedRoute><Profile/></ProtectedRoute>} />
+                <Route path={`/profile/dashboard/:userID/climbs`} element={<ProtectedRoute><Profile/></ProtectedRoute>} /> */}
 
 
             </Routes>

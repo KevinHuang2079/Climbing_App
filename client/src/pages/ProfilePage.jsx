@@ -1,5 +1,5 @@
 import React from 'react';
-import BuildProfile from '../components/ProfileComponent';
+import BuildProfile from '../components/Profile/ProfileComponent';
 import { useParams } from 'react-router-dom';
 
 function ProfilePage() {
