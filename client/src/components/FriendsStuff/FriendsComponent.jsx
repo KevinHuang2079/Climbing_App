@@ -16,12 +16,13 @@ const FriendsComponent = ({userID}) =>{
     useEffect(() => {
         const fetchUserData = async () => {
             try {
-                // Fetch user-specific data using userID
+                //Fetch user-specific data using userID 
+                //TODO friends too along with userData(should be an attribute of user)
                 const userResponse = await fetch(`/users/find/${userID}`);
                 if (!userResponse.ok) {
                     throw new Error('Failed to fetch user data');
                 }
-                
+
                 const userData = await userResponse.json();
                 setUserData(userData[0]);
             } catch (error) {
@@ -44,10 +45,6 @@ const FriendsComponent = ({userID}) =>{
         return <div>Error: Failed to load user data</div>;
     }
 
-    //iterate through each friend of this user, the Friend Component will get their user info
-    const initFriendsList = () => {
-        const allFriends
-    }
     
 
     return (
