@@ -5,7 +5,7 @@ import LeftSection from '../Navigation/LeftSection';
 import RightSection from '../Navigation/RightSection';
 import '../../cssStuff/Profile.scss'
 
-function BuildProfile({ userID }) {
+const BuildProfile = ({ userID }) => {
     const [userData, setUserData] = useState(null);
     const [loading, setLoading] = useState(true);
 

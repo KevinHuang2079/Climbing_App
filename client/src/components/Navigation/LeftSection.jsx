@@ -8,7 +8,7 @@ const LeftSection = ({userID}) => {
         <div className="LeftSection">
             <div className="container">
                 <div className="home">
-                    <Link to={`/profile/dashboard/${userID}`}>   
+                    <Link to={`/profile/dashboard/${userID}`}>
                         <img src="https://www.creativefabrica.com/wp-content/uploads/2019/02/Home-Icon-by-arus-2.jpg" alt="" />
                         <span> Home</span>
                     </Link>
