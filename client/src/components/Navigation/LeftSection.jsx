@@ -8,13 +8,13 @@ const LeftSection = ({userID}) => {
         <div className="LeftSection">
             <div className="container">
                 <div className="home">
-                    <Link to={`/profile/dashboard/${userID}`}>
+                    <Link to={`/profile/dashboard/${userID}`}>   
                         <img src="https://www.creativefabrica.com/wp-content/uploads/2019/02/Home-Icon-by-arus-2.jpg" alt="" />
                         <span> Home</span>
                     </Link>
                 </div>
                 <div className="friends">
-                    <Link to={`/profile/dashboard/${userID}/friends`}>   
+                    <Link to={`/profile/dashboard/friends/${userID}`}>   
                         <img src="https://icons.veryicon.com/png/o/application/awesome-common-free-open-source-icon/user-friends-1.png" alt="" />
                         <span> Friends</span>
                     </Link>

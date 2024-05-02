@@ -51,6 +51,7 @@ const likesRouter = require("./routes/likes.js");
 app.use("/ClimbingApp/auth", authRouter); //routes to login/sign up page
 app.use("/ClimbingApp/posts", postsRouter); 
 app.use("/ClimbingApp/users", usersRouter); 
+// http://localhost:5000/ClimbingApp/users/find/65ded2c0453ca7774985fbbc
 app.use("/ClimbingApp/climbs", climbsRouter);
 app.use("/ClimbingApp/comments", commentsRouter);
 app.use("/ClimbingApp/likes", likesRouter);
@@ -58,12 +59,3 @@ app.use("/ClimbingApp/likes", likesRouter);
 app.listen(port, () => {
     console.log(`API is listening on ${port}`);
 });
-
-// process.on('SIGINT', async () => {
-//     console.log('Received SIGINT signal. Shutting down...');
-//     dbHandler.disconnectDatabase(() => {
-//         console.log('Server closed.');
-//         console.log('Disconnected from the database.');
-//         process.exit(0); 
-//     });
-// });

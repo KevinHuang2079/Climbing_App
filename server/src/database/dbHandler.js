@@ -1,7 +1,7 @@
 const { MongoClient, ServerApiVersion } = require('mongodb');
 const password = "Schwein09";
 const uri = `mongodb+srv://kevhuang2402212:${password}@database.o9ff4tb.mongodb.net/?retryWrites=true&w=majority`;
-
+const { ObjectId } = require('mongodb');
 
 
 // Create a MongoClient with a MongoClientOptions object to set the Stable API version
@@ -108,12 +108,34 @@ async function readDocument(collectionName, fieldName, fieldValue) {
         if (documents.length === 0){
             console.log("Read query: Document not found, returning empty document");
         }
-        return documents;
+        return documents; //array of dictionaries
     } catch(err) {
         console.error(err);
         throw err;
     }
 }
+
+async function addFriend(userID, friendID) {
+    try {
+        const database = client.db('climbingApp');
+        const objectID = new ObjectId(userID); 
+        const userDocuments = await readDocument('users', '_id', objectID);
+        if (userDocuments.length > 0) {
+            database.collection('users').updateOne(
+                {_id: objectID},
+                {$push:{friends: friendID}}
+            )
+        } else {
+            console.log("user not found: ", userID);
+        }
+    }
+    catch(err){
+        console.error("Error updating friend:", err);
+        throw err;
+    }
+}
+
+
 
 module.exports = {
     connectToDatabase,
@@ -121,6 +143,7 @@ module.exports = {
     createDocument,
     deleteDocument,
     updateDocument,
-    readDocument
+    readDocument,
+    addFriend
 };
 

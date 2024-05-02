@@ -17,7 +17,6 @@ function BuildDashboard({ userID }) {
                 if (!userResponse.ok) {
                     throw new Error('Failed to fetch user data');
                 }
-                
                 const userData = await userResponse.json();
                 setUserData(userData[0]);
             } catch (error) {
@@ -41,7 +40,6 @@ function BuildDashboard({ userID }) {
         return <div>Error: Failed to load user data</div>;
     }
 
-
     return (
         <div>
             <TopSection userID={userID} username={userData.username} />
@@ -54,11 +52,6 @@ function BuildDashboard({ userID }) {
             </div>
         </div>
     );
-
-
-
-    
-    
 }
 
 export default BuildDashboard;

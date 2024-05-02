@@ -15,6 +15,7 @@ const register = async(req,res) =>{
             email: emailInput,
             password: hashedPassword,
             name: nameInput,
+            friends: [],
         }
         //getUserByUsernameOrEmail if it doesn't exist then create
         userDocument = await authService.getUserByUsernameOrEmail(usernameInput, emailInput);

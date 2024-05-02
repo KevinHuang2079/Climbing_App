@@ -4,6 +4,8 @@ import { Link } from 'react-router-dom';
 const Friend = ({userID}) =>{
     const [userData, setUserData] = useState(null);
     const [loading, setLoading] = useState(true);
+
+    
     useEffect(() => {
         const fetchUserData = async () => {
             try {
@@ -12,9 +14,8 @@ const Friend = ({userID}) =>{
                 if (!userResponse.ok) {
                     throw new Error('Failed to fetch user data');
                 }
-                
-                const userData = await userResponse.json();
-                setUserData(userData[0]);
+                const Data = await userResponse.json();
+                setUserData(Data[0]);
             } catch (error) {
                 console.error('Error fetching user data:', error);
             } finally {
@@ -29,12 +30,11 @@ const Friend = ({userID}) =>{
 
     return (
         <div className="friend">
-            <h3>{userData.username}</h3>
+            <h3>{userData?.username}</h3>
             {userData && (
                 <div>
-                    <p>User ID: {userData.id}</p>
+                    <p>Name: {userData.name}</p>
                     <p>Email: {userData.email}</p>
-                    <p>username: {userData.username}</p>
                 </div>
             )}
         </div>
