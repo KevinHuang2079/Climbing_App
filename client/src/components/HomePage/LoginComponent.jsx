@@ -50,7 +50,7 @@ function Login({ Access, SetAccess }) {
             navigate(`/profile/dashboard/${userID}`);
             
         } catch (error) {
-            setPasswordError('Incorrect password');   
+
             console.error('Error logging in:', error);
         }
     };

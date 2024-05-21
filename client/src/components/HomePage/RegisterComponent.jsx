@@ -7,14 +7,57 @@ function Register() {
   const [passwordInput, setPassword] = useState('');
   const [nameInput, setName] = useState('');
   const [emailInput, setEmail] = useState('');
+
+  let hasError = false;
   const [usernameError, setUserNameError] = useState('');
+  const [passwordError, setPasswordError] = useState('');
+  const [nameError, setNameError] = useState('');
+  const [emailError, setEmailError] = useState('');
+
   const navigate = useNavigate();
+
+
   const onButtonClick = () => {
     handleRegister();
   };
+
+
   const handleRegister = async () => {
+    if (usernameInput.trim() === '') {
+      setUserNameError('Enter Valid Username');
+      hasError = true;
+    } else {
+      setUserNameError(''); 
+    }
+  
+    if (passwordInput.trim() === '') {
+      setPasswordError('Enter Valid Password');
+      hasError = true;
+    } else {
+      setPasswordError('');
+    }
+  
+    if (nameInput.trim() === '') {
+      setNameError('Enter Valid Name');
+      hasError = true;
+    } else {
+      setNameError('');
+    }
+  
+    if (emailInput.trim() === '') {
+      setEmailError('Enter Valid Email');
+      hasError = true;
+    } else {
+      setEmailError(''); 
+    }
+  
+    //stop execution if there are any errors
+    if (hasError) {
+       console.log("test");
+      return;
+    }else{
     try {
-      // Proceed with registration if the user is not already registered
+      //proceed with registration if the user is not already registered
       const response = await fetch('/auth/register', {
         method: 'POST',
         headers: {
@@ -22,22 +65,24 @@ function Register() {
         },
         body: JSON.stringify({ usernameInput, emailInput, nameInput, passwordInput }),
       });
-
+    
       if (!response.ok) {
         // Handle HTTP error response
         if (response.status === 409) {
-            setUserNameError('Account taken, try different email or username');
+            setUserNameError('Account Taken');
         } else {
             console.error('HTTP Error:', response.statusText);
         }
         return; // Exit from the function if there's an HTTP error
       }
+      
         const data = await response.json();
         console.log('Register successful:', data);
         const userID = data._id;
         navigate(`/profile/home/${userID}`);
     } catch (error) {
       console.error('Error registering user:', error);
+    }
     }
   };
 
