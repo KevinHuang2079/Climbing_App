@@ -23,6 +23,8 @@ function Register() {
 
 
   const handleRegister = async () => {
+    hasError = false;
+
     if (usernameInput.trim() === '') {
       setUserNameError('Enter Valid Username');
       hasError = true;
@@ -53,7 +55,6 @@ function Register() {
   
     //stop execution if there are any errors
     if (hasError) {
-       console.log("test");
       return;
     }else{
     try {
@@ -69,7 +70,7 @@ function Register() {
       if (!response.ok) {
         // Handle HTTP error response
         if (response.status === 409) {
-            setUserNameError('Account Taken');
+            //setUserNameError('Account Taken');
         } else {
             console.error('HTTP Error:', response.statusText);
         }
@@ -79,26 +80,28 @@ function Register() {
         const data = await response.json();
         console.log('Register successful:', data);
         const userID = data._id;
-        navigate(`/profile/home/${userID}`);
+        navigate(`/profile/dashboard/${userID}`);
     } catch (error) {
       console.error('Error registering user:', error);
     }
     }
   };
 
+
   return (
     <div className="mainContainer">
-        <br />
+      <form action="/" method="GET"> 
+        <br/>
         <div className="usernameInput">
-          <label className="errorLabel">{usernameError}
-            <input
+          <input
               value={usernameInput}
               placeholder="Username"
               onChange={(ev) => setUserName(ev.target.value)}
-              className="inputBox"
-            />
-          </label>   
+              className={`inputBox ${usernameError ? 'error' : ''}`}
+            required/> 
+            {usernameError && <span className="errorLabel">{usernameError}</span>}
         </div>
+
         <br />
         <div className="passwordInput">
             <input
@@ -106,27 +109,33 @@ function Register() {
                 value={passwordInput}
                 placeholder="Password"
                 onChange={(ev) => setPassword(ev.target.value)}
-                className="inputBox"
-            />
+                className={`inputBox ${passwordError ? 'error' : ''}`}
+            required/>
+            {passwordError && <span className="errorLabel">{passwordError}</span>}
         </div>
+
         <br />
         <div className="emailInput">
             <input
                 value={emailInput}
                 placeholder="Email"
                 onChange={(ev) => setEmail(ev.target.value)}
-                className="inputBox"
-            />
+                className={`inputBox ${emailError ? 'error' : ''}`}
+            required/>
+            {emailError && <span className="errorLabel">{emailError}</span>}
         </div>
+
         <br />
         <div className="nameInput">
             <input
                 value={nameInput}
                 placeholder="Full Name"
                 onChange={(ev) => setName(ev.target.value)}
-                className="inputBox"
-            />
+                className={`inputBox ${nameError ? 'error' : ''}`}
+            required/>
+            {nameError && <span className="errorLabel">{nameError}</span>}
         </div>
+
         <br />
         <div className="buttonContainer">
           <input 
@@ -134,8 +143,10 @@ function Register() {
               type="button" 
               onClick={onButtonClick} 
               value="Register" 
-          />
+          required/>
         </div>
+
+      </form>
     </div>
   )
 }

@@ -1,34 +1,40 @@
 .mainContainer {
-    .usernameInput {
+    .usernameInput,
+    .passwordInput,
+    .emailInput,
+    .nameInput {
         display: flex;
         flex-direction: column;
-        gap:30px;
+        gap: 30px;
 
         .errorLabel {
-            .inputBox {
-                background-color: white;
-                border: none;
-                border-bottom: 1px solid lightgray;
-                padding: 20px;
-            }
+            color: red;
+            font-size: 12px; // Adjust font size as needed
+            margin-top: 3px; // Add minimal space between input and error label
         }
-    }    
-    .passwordInput {
-        display: flex;
-        flex-direction: column;
-        gap:30px;
-        .errorLabel {
-            .inputBox {
-                background-color: white;
-                border: none;
-                border-bottom: 1px solid lightgray;
-                padding: 20px;
-                width: 250px;
-            }
+
+        .inputBox {
+            background-color: white;
+            border: none;
+            border-bottom: 1px solid lightgray;
+            padding: 20px;
+            width: 100%; // Take full width of parent container
+            box-sizing: border-box; // Include padding in width calculation
         }
-    } 
+
+        .inputBox.error {
+            border: 1px solid red;
+        }
+    }
+
+    .usernameInput {
+        .inputBox {
+            width: 250px; // Override width for specific input if needed
+        }
+    }
+
     .inputContainer {
-        .loginButton{
+        .loginButton {
             width: 50%;
             padding: 10px;
             border: none;
