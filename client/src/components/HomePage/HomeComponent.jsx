@@ -20,7 +20,6 @@ function Home({ Access, SetAccess}){
                         i am who am i am 
                         i am who am i am 
                         i am who am i am 
-                        who do you think you are, I AM 
                     </p> 
 
                 </div>
@@ -39,7 +38,7 @@ function Home({ Access, SetAccess}){
                         ) : (
                             <div>
                                 <h2>Register</h2>
-                                <RegisterComponent />
+                                <RegisterComponent Access={Access} SetAccess={SetAccess} />
                                 <p >Already have an account? 
                                     <button 
                                         onClick={toggleForm} >Login

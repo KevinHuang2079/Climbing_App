@@ -1,12 +1,14 @@
-import React, { useState } from 'react';
+import React, { useState, useContext } from 'react';
 import { useNavigate } from 'react-router-dom';
 import '../../cssStuff/Register.scss';  
+import { GlobalContext } from '../../GlobalContext';
 
-function Register() {
+function Register({Access, SetAccess}) {
   const [usernameInput, setUserName] = useState('');
   const [passwordInput, setPassword] = useState('');
   const [nameInput, setName] = useState('');
   const [emailInput, setEmail] = useState('');
+  const { userID, setUserID } = useContext(GlobalContext);
 
   let hasError = false;
   const [usernameError, setUserNameError] = useState('');
@@ -19,6 +21,11 @@ function Register() {
 
   const onButtonClick = () => {
     handleRegister();
+  };
+
+  const validateEmail = (email) => {
+    const regex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    return regex.test(email);
   };
 
 
@@ -47,43 +54,49 @@ function Register() {
     }
   
     if (emailInput.trim() === '') {
-      setEmailError('Enter Valid Email');
+      setEmailError('Enter an email address');
+      hasError = true;
+    } else if (!validateEmail(emailInput)) {
+      setEmailError('Enter a valid email address');
       hasError = true;
     } else {
-      setEmailError(''); 
+      setEmailError('');
     }
   
     //stop execution if there are any errors
     if (hasError) {
       return;
-    }else{
-    try {
-      //proceed with registration if the user is not already registered
-      const response = await fetch('/auth/register', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ usernameInput, emailInput, nameInput, passwordInput }),
-      });
-    
-      if (!response.ok) {
-        // Handle HTTP error response
-        if (response.status === 409) {
-            //setUserNameError('Account Taken');
-        } else {
-            console.error('HTTP Error:', response.statusText);
-        }
-        return; // Exit from the function if there's an HTTP error
-      }
-      
+    } 
+    else{
+      try {
+        //proceed with registration 
+        const response = await fetch('/auth/register', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ usernameInput, emailInput, nameInput, passwordInput }),
+        });
         const data = await response.json();
-        console.log('Register successful:', data);
-        const userID = data._id;
-        navigate(`/profile/dashboard/${userID}`);
-    } catch (error) {
-      console.error('Error registering user:', error);
-    }
+        //api call
+        if (!response.ok) {
+          if (response.status === 409) {
+              setUserNameError('Account Taken');
+              setEmailError('Account Taken');
+          } 
+          else {
+              console.error('HTTP Error:', response.statusText);
+          }
+          return;
+        }
+        //successful registration
+          console.log('Register successful:', data);
+          setUserID(data._id);
+          SetAccess(true);
+          navigate(`/profile/dashboard/${userID}`);
+      } catch (error) {
+        console.error('Error registering user:', error);
+      }
     }
   };
 

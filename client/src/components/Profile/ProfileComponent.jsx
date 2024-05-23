@@ -1,13 +1,15 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useContext } from 'react';
 import { Link } from 'react-router-dom';
 import TopSection from "../Navigation/TopSection";
 import LeftSection from '../Navigation/LeftSection';
 import RightSection from '../Navigation/RightSection';
 import '../../cssStuff/Profile.scss'
+import { GlobalContext } from '../../GlobalContext';
 
-const BuildProfile = ({ userID }) => {
+const BuildProfile = () => {
     const [userData, setUserData] = useState(null);
     const [loading, setLoading] = useState(true);
+    const { userID } = useContext(GlobalContext);
 
     useEffect(() => {
         const fetchUserData = async () => {
@@ -49,6 +51,7 @@ const BuildProfile = ({ userID }) => {
                 <LeftSection userID={userID}/>
                 <div style={{ flex: 6 }}>
                     <div className="Profile">
+
                         <div className='User'>
                             <img src="https://www.shutterstock.com/image-vector/default-avatar-profile-icon-social-600nw-1677509740.jpg" alt=""/>
                             <span>{userData.username}</span>
@@ -61,6 +64,7 @@ const BuildProfile = ({ userID }) => {
                                 </Link>
                             </div>
                         </div>
+
                         <div className="Activity">
                             <div className="PopularActivity">
                                 <h2>Popular Climbs</h2>
@@ -75,6 +79,7 @@ const BuildProfile = ({ userID }) => {
                                 </ul>
                             </div>  
                         </div>
+                        
                     </div>
                 </div>
                 <RightSection />

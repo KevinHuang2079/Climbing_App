@@ -3,4 +3,30 @@
     background-color: white;
     position: sticky;
     top: 70;
+    .Suggested {
+
+    }
+    .Contacts {
+        padding: 20px;
+        background-color: #f9f9f9;
+        border-radius: 5px;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+      }
+      
+      .contact {
+        padding: 10px;
+        border-bottom: 1px solid #ddd;
+      }
+      
+      .contact:last-child {
+        border-bottom: none;
+      }
+      
+      .contact h3 {
+        margin: 0;
+      }
+      
+      .contact p {
+        margin: 5px 0;
+    }
 }

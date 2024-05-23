@@ -4,6 +4,8 @@ import HomeComponent from "./components/HomePage/HomeComponent"
 import ProfilePage from "./pages/ProfilePage.jsx"
 import DashboardPage from './pages/DashboardPage.jsx';
 import SettingsPage from './pages/SettingsPage.jsx';
+
+import { GlobalContext, GlobalProvider } from './GlobalContext.js'
 import ClimbsPage from './pages/ClimbsPage.jsx';
 import ShowFollowers from './components/Profile/Followers';
 import ShowFollowing from './components/Profile/Following';
@@ -22,29 +24,28 @@ function App() {
     }
 
     return (
-        <BrowserRouter>
-            <Routes>
-                <Route path="/" element={<Navigate to="/home" />} />
-                <Route path="/home" element={<HomeComponent Access={Access} SetAccess={SetAccess}/>} />
+        <GlobalProvider>
+            <BrowserRouter>
+                <Routes>
+                    <Route path="/" element={<Navigate to="/home" />} />
+                    <Route path="/home" element={<HomeComponent Access={Access} SetAccess={SetAccess}/>} />
 
-                <Route path="profile/dashboard/:userID" element={<ProtectedRoute> <DashboardPage /> </ProtectedRoute>} />
-                <Route path="/profile/info/:userID/:username" element={<ProtectedRoute><ProfilePage/></ProtectedRoute>}></Route>
-                
-                <Route path="followers" element={<ProtectedRoute><ShowFollowers /></ProtectedRoute>} />
-                <Route path="following" element={<ProtectedRoute><ShowFollowing /></ProtectedRoute>} />
-                
-                <Route path="/profile/settings/:userID" element={<ProtectedRoute><SettingsPage/></ProtectedRoute>}></Route>
-                <Route path="/profile/climbs/:userID" element={<ProtectedRoute><ClimbsPage/></ProtectedRoute>}></Route>
-                <Route path="/profile/:userID" element={<ProtectedRoute><Profile/></ProtectedRoute>}></Route>
-                
-                <Route path={`/profile/dashboard/friends/:userID`} element={<ProtectedRoute><FriendsComponent/></ProtectedRoute>} />
-                {/* <Route path={`/profile/dashboard/:userID/groups`} element={<ProtectedRoute><Profile/></ProtectedRoute>} />
-                <Route path={`/profile/dashboard/:userID/climbs`} element={<ProtectedRoute><Profile/></ProtectedRoute>} /> */}
-
-
-            </Routes>
-
-        </BrowserRouter>
+                    <Route path="profile/dashboard/:userID" element={<ProtectedRoute> <DashboardPage /> </ProtectedRoute>} />
+                    <Route path="/profile/info/:userID/:username" element={<ProtectedRoute><ProfilePage/></ProtectedRoute>}></Route>
+                    
+                    <Route path="followers" element={<ProtectedRoute><ShowFollowers /></ProtectedRoute>} />
+                    <Route path="following" element={<ProtectedRoute><ShowFollowing /></ProtectedRoute>} />
+                    
+                    <Route path="/profile/settings/:userID" element={<ProtectedRoute><SettingsPage/></ProtectedRoute>}></Route>
+                    <Route path="/profile/dashboard/:userID/climbs" element={<ProtectedRoute><ClimbsPage/></ProtectedRoute>}></Route>
+                    <Route path="/profile/:userID" element={<ProtectedRoute><Profile/></ProtectedRoute>}></Route>
+                    
+                    <Route path={`/profile/dashboard/friends/:userID`} element={<ProtectedRoute><FriendsComponent/></ProtectedRoute>} />
+                    {/* <Route path={`/profile/dashboard/:userID/groups`} element={<ProtectedRoute><Profile/></ProtectedRoute>} />
+                    <Route path={`/profile/dashboard/:userID/climbs`} element={<ProtectedRoute><Profile/></ProtectedRoute>} /> */}
+                </Routes>
+            </BrowserRouter>
+        </GlobalProvider>
     );
 
 }

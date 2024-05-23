@@ -1,13 +1,15 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useContext } from 'react';
 import TopSection from "./Navigation/TopSection";
 import LeftSection from './Navigation/LeftSection';
 import RightSection from './Navigation/RightSection';
 import MainSection from './Navigation/MainSection';
+import { GlobalContext } from '../GlobalContext';
 
 
-function BuildDashboard({ userID }) {
+function BuildDashboard() {
     const [userData, setUserData] = useState(null);
     const [loading, setLoading] = useState(true);
+    const { userID } = useContext(GlobalContext);
 
     useEffect(() => {
         const fetchUserData = async () => {

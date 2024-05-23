@@ -1,14 +1,16 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useContext } from 'react';
 import TopSection from "../Navigation/TopSection";
 import LeftSection from '../Navigation/LeftSection';
 import RightSection from '../Navigation/RightSection';
+import { GlobalContext } from '../../GlobalContext';
 
 
 
-function ShowFollowers({ userID, username }) {
+
+function ShowFollowers({ username }) {
     const [userData, setUserData] = useState(null);
     const [loading, setLoading] = useState(true);
-
+    const { userID} = useContext(GlobalContext);
     useEffect(() => {
         const fetchUserData = async () => {
             try {
