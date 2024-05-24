@@ -1,5 +1,6 @@
 import React, { } from 'react';
 import Contacts from './Contacts';
+import '../../cssStuff/RightSection.scss';  
 
 
 
@@ -11,6 +12,7 @@ function RightSection ({ userID, username }) {
 
     return(
         <div className="RightSection">
+
             <div className="Suggested">
                 <h2>Suggested Climbers</h2>
                 <span>Find new ways to connect with climbers in your community.</span>
@@ -21,9 +23,11 @@ function RightSection ({ userID, username }) {
                     value="Recommended Climbers"
                 />
             </div>
+
             <div className="Contacts"> 
                 <Contacts/>
             </div>
+            
         </div>
     )
 }

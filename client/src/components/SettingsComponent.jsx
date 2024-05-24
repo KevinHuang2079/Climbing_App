@@ -2,7 +2,6 @@ import React, { useState, useEffect } from 'react';
 import TopSection from "./Navigation/TopSection";
 import LeftSection from './Navigation/LeftSection';
 import RightSection from './Navigation/RightSection';
-import MainSection from './Navigation/MainSection';
 
 
 function BuildSettings({ userID }) {
@@ -48,7 +47,7 @@ function BuildSettings({ userID }) {
             <div style = {{display: "flex"}}> 
                 <LeftSection />
                 <div style={{ flex: 6}}>
-                    <MainSection />
+
                 </div>
                 <RightSection />
             </div>

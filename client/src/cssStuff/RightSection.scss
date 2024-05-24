@@ -1,32 +1,71 @@
-.RightSection{
+.RightSection {
     flex: 3;
     background-color: white;
     position: sticky;
-    top: 70;
-    .Suggested {
+    padding: 20px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    border-radius: 5px;
+}
 
+.Suggested,
+.Contacts {
+    top: 70px;
+    margin-bottom: 20px;
+    padding: 20px;
+    background-color: #fafafa;
+    border-radius: 5px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.Suggested {
+    h2 {
+        margin-top: 0;
+        font-size: 1.5rem;
     }
-    .Contacts {
-        padding: 20px;
-        background-color: #f9f9f9;
+
+    span {
+        display: block;
+        margin-bottom: 10px;
+        color: #667;
+    }
+
+    .findClimbersButton {
+        display: inline-block;
+        padding: 10px 15px;
+        background-color: #007BFF;
+        color: white;
+        border: none;
         border-radius: 5px;
-        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-      }
-      
-      .contact {
+        cursor: pointer;
+        font-size: 1rem;
+
+        &:hover {
+            background-color: #0056b3;
+        }
+    }
+}
+
+.Contacts {
+    padding: 20px;
+    background-color: #f9f9f9;
+
+    .contact {
         padding: 10px;
         border-bottom: 1px solid #ddd;
-      }
-      
-      .contact:last-child {
-        border-bottom: none;
-      }
-      
-      .contact h3 {
-        margin: 0;
-      }
-      
-      .contact p {
-        margin: 5px 0;
+
+        &:last-child {
+            border-bottom: none;
+        }
+
+        h3 {
+            margin: 0;
+            font-size: 1.2rem;
+            color: #333;
+        }
+
+        p {
+            margin: 5px 0;
+            color: #666;
+        }
     }
 }

@@ -1,10 +1,10 @@
 import React, { useState, useEffect, useContext } from 'react';
-import TopSection from "./Navigation/TopSection";
-import LeftSection from './Navigation/LeftSection';
-import RightSection from './Navigation/RightSection';
-import MainSection from './Navigation/MainSection';
-import { GlobalContext } from '../GlobalContext';
-
+import TopSection from "../Navigation/TopSection";
+import LeftSection from '../Navigation/LeftSection';
+import RightSection from '../Navigation/RightSection';
+import { GlobalContext } from '../../GlobalContext';
+import Posts from "./Posts.jsx"
+import '../../cssStuff/Dashboard.scss';
 
 function BuildDashboard() {
     const [userData, setUserData] = useState(null);
@@ -43,12 +43,12 @@ function BuildDashboard() {
     }
 
     return (
-        <div>
+        <div className='dashboard'>
             <TopSection userID={userID} username={userData.username} />
             <div style = {{display: "flex"}}> 
                 <LeftSection userID={userID}/>
-                <div style={{ flex: 6}}>
-                    <MainSection />
+                <div className='posts' style={{ flex: 6}}>
+                    <Posts />
                 </div>
                 <RightSection />
             </div>
