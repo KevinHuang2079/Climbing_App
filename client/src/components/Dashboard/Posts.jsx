@@ -1,9 +1,13 @@
-import React, { useState } from 'react';
+import React, { useState, useContext } from 'react';
 import Post from './Post.jsx';
 import PostContent from './PostContent.jsx';
+import { GlobalContext } from '../../GlobalContext';
 
 const Posts = () => {
     const [posts, setPosts] = useState([]);
+    //const { userID } = useContext(GlobalContext);
+    const { username } = useContext(GlobalContext);
+    const { name } = useContext(GlobalContext);
 
     const handleAddPost = () => {
         // Simulate picking images and videos from local storage
@@ -12,9 +16,9 @@ const Posts = () => {
 
         const newPost = {
             id: posts.length + 1,
-            name: 'John Doe',
-            username: 'john.doe@example.com',
-            caption: 'Check out my latest adventure!',
+            name: name,
+            username: "@"+username,
+            text: 'Check out my latest adventure!',
             images: images,
             videos: videos,
         };
@@ -31,11 +35,14 @@ const Posts = () => {
                     key={post.id}
                     name={post.name}
                     username={post.username}
-                    caption={post.caption}
+                    text={post.text}
                     Content={<PostContent images={post.images} videos={post.videos} />}
                 />
             ))}
-        </div>
+            <div className='PostMenu'>
+                
+            </div>
+        </div>  
     );
 };
 

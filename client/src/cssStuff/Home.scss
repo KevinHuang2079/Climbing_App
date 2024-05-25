@@ -1,6 +1,27 @@
+$background-color: rgb(193, 190, 255);
+$card-background: white;
+$gradient-start: rgba(56, 25, 117, 0.5);
+$gradient-end: rgba(39, 11, 96, 0.5);
+$image-url: "https://media.istockphoto.com/id/1199153135/photo/carefree-mature-man-having-fun-on-chain-swing-ride-in-amusement-park.jpg?s=612x612&w=0&k=20&c=3x62R_bhsA6f2rP3H8S88zSDNEstCnVNqTpzaPyz6Fs=";
+$primary-color: purple;
+$secondary-color: rebeccapurple;
+$text-color: white;
+$h1-font-size: 100px;
+$h1-line-height: 80px;
+$p-gap: 30px;
+$form-gap: 30px;
+$button-width: 50%;
+$button-padding: 10px;
+$border-radius: 10px;
+$min-height: 600px;
+$padding: 60px;
+$small-padding: 50px;
+$button-login-color: purple;
+$button-register-color: purple;
+
 .home-container {
     height: 100vh;
-    background-color: rgb(193, 190, 255);
+    background-color: $background-color;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -8,59 +29,84 @@
     .card {
         width: 60%;
         display: flex;
-        border-radius: 10px;
-        min-height: 600px;
+        border-radius: $border-radius;
+        min-height: $min-height;
         overflow: hidden;
-        background-color: white;
+        background-color: $card-background;
 
         .left {
             flex: 1;
-            background: linear-gradient(rgba(56, 25, 117, 0.5),
-             rgba(39, 11, 96, 0.5)), 
-             url("https://media.istockphoto.com/id/1199153135/photo/carefree-mature-man-having-fun-on-chain-swing-ride-in-amusement-park.jpg?s=612x612&w=0&k=20&c=3x62R_bhsA6f2rP3H8S88zSDNEstCnVNqTpzaPyz6Fs=") center;
+            background: linear-gradient($gradient-start, $gradient-end),
+                        url($image-url) center;
             background-size: cover;
-            padding: 60px;
+            padding: $padding;
             display: flex;
             flex-direction: column;
-            gap: 30px;
-            color: white;
+            gap: $p-gap;
+            color: $text-color;
+            justify-content: center;
+            align-items: center;
 
             h1 {
-                font-size: 100px;
-                line-height: 80px;
+                font-size: $h1-font-size;
+                line-height: $h1-line-height;
+                text-align: center;
             }
 
             p {
                 word-wrap: break-word;
+                text-align: center;
             }
         }
 
         .right {
             flex: 1;
-            padding: 50px;
+            padding: $small-padding;
             display: flex;
             flex-direction: column;
-            gap: 50px;
+            gap: $p-gap;
             justify-content: center;
+            align-items: center;
 
             .form-container {
                 display: flex;
                 flex-direction: column;
                 justify-content: center;
-                gap: 30px;
+                align-items: center;
+                gap: $form-gap;
+                width: 100%;
 
                 h2 {
-                    color: purple;
+                    color: $primary-color;
+                    text-align: center;
                 }
 
                 button {
-                    width: 50%;
-                    padding: 10px;
+                    width: $button-width;
+                    padding: $button-padding;
                     border: none;
-                    background-color: white;
-                    color: rebeccapurple;
+                    background-color: $card-background;
                     font-weight: bold;
                     cursor: pointer;
+                    transition: background-color 0.3s, color 0.3s;
+
+                    &.login-button {
+                        color: $button-login-color;
+
+                        &:hover {
+                            background-color: $button-login-color;
+                            color: $card-background;
+                        }
+                    }
+
+                    &.register-button {
+                        color: $button-register-color;
+
+                        &:hover {
+                            background-color: $button-register-color;
+                            color: $card-background;
+                        }
+                    }
                 }
             }
         }

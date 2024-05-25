@@ -5,9 +5,11 @@ import { GlobalContext } from '../../GlobalContext';
 
 
 function Login({ Access, SetAccess }) {
-    const [usernameInput, setUserName] = useState('');
+    const [usernameInput, setUserNameInput] = useState('');
     const [passwordInput, setPassword] = useState('');
     const { userID, setUserID } = useContext(GlobalContext);
+    const { setUsername } = useContext(GlobalContext);
+    const { setName } = useContext(GlobalContext);
     let hasError = false;
     const [usernameError, setUserNameError] = useState('');
     const [passwordError, setPasswordError] = useState('');
@@ -65,6 +67,9 @@ function Login({ Access, SetAccess }) {
                 const data = await response.json();
                 console.log('Login successful:', data);
                 setUserID(data._id);
+                setUsername(data.username);
+                setName(data.name);
+
                 SetAccess(true);
                 navigate(`/profile/dashboard/${userID}`);
                 
@@ -83,7 +88,7 @@ function Login({ Access, SetAccess }) {
                 <input
                     value={usernameInput}
                     placeholder="Username or email"
-                    onChange={(ev) => setUserName(ev.target.value)}
+                    onChange={(ev) => setUserNameInput(ev.target.value)}
                     className={`inputBox ${usernameError ? 'error' : ''}`}
                 required/>
                 {usernameError && <span className="errorLabel">{usernameError}</span>}

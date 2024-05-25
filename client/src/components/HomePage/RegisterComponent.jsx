@@ -4,11 +4,14 @@ import '../../cssStuff/Register.scss';
 import { GlobalContext } from '../../GlobalContext';
 
 function Register({Access, SetAccess}) {
-  const [usernameInput, setUserName] = useState('');
-  const [passwordInput, setPassword] = useState('');
-  const [nameInput, setName] = useState('');
-  const [emailInput, setEmail] = useState('');
+  const [usernameInput, setUserNameInput] = useState('');
+  const [passwordInput, setPasswordInput] = useState('');
+  const [nameInput, setNameInput] = useState('');
+  const [emailInput, setEmailInput] = useState('');
+
   const { userID, setUserID } = useContext(GlobalContext);
+  const { setUsername } = useContext(GlobalContext);
+  const { setName } = useContext(GlobalContext);
 
   let hasError = false;
   const [usernameError, setUserNameError] = useState('');
@@ -92,6 +95,8 @@ function Register({Access, SetAccess}) {
         //successful registration
           console.log('Register successful:', data);
           setUserID(data._id);
+          setUsername(data.username);
+          setName(data.name);
           SetAccess(true);
           navigate(`/profile/dashboard/${userID}`);
       } catch (error) {
@@ -109,7 +114,7 @@ function Register({Access, SetAccess}) {
           <input
               value={usernameInput}
               placeholder="Username"
-              onChange={(ev) => setUserName(ev.target.value)}
+              onChange={(ev) => setUserNameInput(ev.target.value)}
               className={`inputBox ${usernameError ? 'error' : ''}`}
             required/> 
             {usernameError && <span className="errorLabel">{usernameError}</span>}
@@ -121,7 +126,7 @@ function Register({Access, SetAccess}) {
                 type="password"
                 value={passwordInput}
                 placeholder="Password"
-                onChange={(ev) => setPassword(ev.target.value)}
+                onChange={(ev) => setPasswordInput(ev.target.value)}
                 className={`inputBox ${passwordError ? 'error' : ''}`}
             required/>
             {passwordError && <span className="errorLabel">{passwordError}</span>}
@@ -132,7 +137,7 @@ function Register({Access, SetAccess}) {
             <input
                 value={emailInput}
                 placeholder="Email"
-                onChange={(ev) => setEmail(ev.target.value)}
+                onChange={(ev) => setEmailInput(ev.target.value)}
                 className={`inputBox ${emailError ? 'error' : ''}`}
             required/>
             {emailError && <span className="errorLabel">{emailError}</span>}
@@ -143,7 +148,7 @@ function Register({Access, SetAccess}) {
             <input
                 value={nameInput}
                 placeholder="Full Name"
-                onChange={(ev) => setName(ev.target.value)}
+                onChange={(ev) => setNameInput(ev.target.value)}
                 className={`inputBox ${nameError ? 'error' : ''}`}
             required/>
             {nameError && <span className="errorLabel">{nameError}</span>}
