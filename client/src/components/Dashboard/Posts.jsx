@@ -1,48 +1,37 @@
-import React, { useState, useContext } from 'react';
-import Post from './Post.jsx';
-import PostContent from './PostContent.jsx';
-import { GlobalContext } from '../../GlobalContext';
+import React, { useState, useEffect } from 'react';
+import axios from 'axios';
+import { getCollection } from 'dbHandler';
+
 
 const Posts = () => {
     const [posts, setPosts] = useState([]);
-    //const { userID } = useContext(GlobalContext);
-    const { username } = useContext(GlobalContext);
-    const { name } = useContext(GlobalContext);
 
-    const handleAddPost = () => {
-        // Simulate picking images and videos from local storage
-        const images = ['image1.jpg'];
-        const videos = ['video1.mp4'];
-
-        const newPost = {
-            id: posts.length + 1,
-            name: name,
-            username: "@"+username,
-            text: 'Check out my latest adventure!',
-            images: images,
-            videos: videos,
+    useEffect(() => {
+        const fetchPosts = async () => {
+            try {
+                const response = await axios.get('/ClimbingApp/posts');
+                setPosts(response.data);
+            } catch (err) {
+                console.error(err);
+            }
         };
 
-        setPosts([...posts, newPost]);
-    };
+        fetchPosts();
+    }, []); // Empty dependency array to run the effect only once
 
     return (
         <div className='posts-section'>
-            <h2>Home</h2>
-            <button onClick={handleAddPost}>Add Post</button>
-            {posts.map(post => (
-                <Post
-                    key={post.id}
-                    name={post.name}
-                    username={post.username}
-                    text={post.text}
-                    Content={<PostContent images={post.images} videos={post.videos} />}
-                />
-            ))}
-            <div className='PostMenu'>
-                
+            <h2>Posts</h2>
+            <div className='posts-list'>
+                {posts.map((post, index) => (
+                    <div key={index} className='post'>
+                        <h3>{post.title}</h3>
+                        <p>{post.content}</p>
+                        {/* Render other post details */}
+                    </div>
+                ))}
             </div>
-        </div>  
+        </div>
     );
 };
 
