@@ -1,5 +1,4 @@
-import React, { useState, useEffect } from 'react';
-import axios from 'axios';
+import React, { useState } from 'react';
 
 const Posts = () => {
     const [posts, setPosts] = useState([]);
@@ -9,19 +8,6 @@ const Posts = () => {
     const [imgFile, setImgFile] = useState(null);
     const [message, setMessage] = useState('');
 
-    useEffect(() => {
-        const fetchPosts = async () => {
-            try {
-                const response = await axios.get('/ClimbingApp/posts');
-                setPosts(response.data);
-            } catch (err) {
-                console.error(err);
-            }
-        };
-
-        fetchPosts();
-    }, []); // Empty dependency array to run the effect only once
-
     const handlePost = async (e) => {
         e.preventDefault();
 
@@ -30,34 +16,69 @@ const Posts = () => {
             return;
         }
 
-        const formData = new FormData();
-        formData.append('caption', caption);
-        if (videoFile) {
-            formData.append('videoFile', videoFile);
-        }
-        if (imgFile) {
-            formData.append('imgFile', imgFile);
-        }
+        let videoURL = '';
+        let imgURL = '';
 
+        // Upload video
         try {
-            const formData = new FormData();
-            formData.append('caption', caption);
-            formData.append('videoFile', videoFile);
-            formData.append('imgFile', imgFile);
-            console.log(formData);
-        
-            const response = await fetch('/climbs/createClimb', {
+            const videoFormData = new FormData();
+            videoFormData.append('file', videoFile);
+
+            const response = await fetch('http://localhost:5000/routes/uploads', {
                 method: 'POST',
-                headers: {
-                },
-                body: formData,
+                body: videoFormData,
             });
-            console.log(response);
-            
+
             if (!response.ok) {
                 throw new Error('Network response was not ok');
             }
-        
+
+            const videoData = await response.json();
+            videoURL = videoData.fileUrl;
+            console.log('Video URL:', videoURL);
+        } catch (err) {
+            console.error(err);
+            setMessage('Error uploading video');
+            return;
+        }
+
+        // Upload image
+        try {
+            const imgFormData = new FormData();
+            imgFormData.append('file', imgFile);
+
+            const response = await fetch('http://localhost:5000/routes/uploads', {
+                method: 'POST',
+                body: imgFormData,
+            });
+
+            if (!response.ok) {
+                throw new Error('Network response was not ok');
+            }
+
+            const imgData = await response.json();
+            imgURL = imgData.fileUrl;
+            console.log('Image URL:', imgURL);
+        } catch (err) {
+            console.error(err);
+            setMessage('Error uploading image');
+            return;
+        }
+
+        // Create a new post
+        try {
+            const response = await fetch('/climbs/createClimb', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ caption, videoFile: videoURL, imgFile: imgURL }),
+            });
+
+            if (!response.ok) {
+                throw new Error('Network response was not ok');
+            }
+
             const data = await response.json();
             setPosts([...posts, data]);
             setCaption('');
@@ -69,7 +90,6 @@ const Posts = () => {
             console.error(err);
             setMessage('Error creating post');
         }
-        
     };
 
     const handleVideoFileChange = (e) => {
@@ -114,7 +134,6 @@ const Posts = () => {
                                 type='file'
                                 accept='video/mp4,video/mpeg'
                                 onChange={handleVideoFileChange}
-                                required
                             />
                         </div>
                         <div>
@@ -130,25 +149,6 @@ const Posts = () => {
                     {message && <p>{message}</p>}
                 </div>
             )}
-            <div className='posts-list'>
-                {posts.map((post, index) => (
-                    <div key={index} className='post'>
-                        <h3>{post.caption}</h3>
-                        <p>Date: {new Date(post.date).toLocaleString()}</p>
-                        <p>Likes: {post.likes}</p>
-                        <p>Comments: {post.comments}</p>
-                        {post.fileUrls.map((url, i) => (
-                            <div key={i}>
-                                {url.includes('video') ? (
-                                    <a href={url} target='_blank' rel='noopener noreferrer'>Video {i + 1}</a>
-                                ) : (
-                                    <a href={url} target='_blank' rel='noopener noreferrer'>Image {i + 1}</a>
-                                )}
-                            </div>
-                        ))}
-                    </div>
-                ))}
-            </div>
         </div>
     );
 };

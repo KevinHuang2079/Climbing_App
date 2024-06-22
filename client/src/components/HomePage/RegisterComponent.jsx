@@ -1,19 +1,15 @@
-import React, { useState, useContext } from 'react';
+import React, { useState, useContext, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import '../../cssStuff/Register.scss';  
 import { GlobalContext } from '../../GlobalContext';
 
-function Register({Access, SetAccess}) {
+function Register({ Access, SetAccess }) {
   const [usernameInput, setUserNameInput] = useState('');
   const [passwordInput, setPasswordInput] = useState('');
   const [nameInput, setNameInput] = useState('');
   const [emailInput, setEmailInput] = useState('');
 
-  const { userID, setUserID } = useContext(GlobalContext);
-  const { setUsername } = useContext(GlobalContext);
-  const { setName } = useContext(GlobalContext);
-
-  let hasError = false;
+  const { setUserID, setUsername, setName } = useContext(GlobalContext);
   const [usernameError, setUserNameError] = useState('');
   const [passwordError, setPasswordError] = useState('');
   const [nameError, setNameError] = useState('');
@@ -21,19 +17,13 @@ function Register({Access, SetAccess}) {
 
   const navigate = useNavigate();
 
-
-  const onButtonClick = () => {
-    handleRegister();
-  };
-
   const validateEmail = (email) => {
     const regex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     return regex.test(email);
   };
 
-
-  const handleRegister = async () => {
-    hasError = false;
+  const handleRegister = useCallback(async () => {
+    let hasError = false;
 
     if (usernameInput.trim() === '') {
       setUserNameError('Enter Valid Username');
@@ -41,21 +31,21 @@ function Register({Access, SetAccess}) {
     } else {
       setUserNameError(''); 
     }
-  
+
     if (passwordInput.trim() === '') {
       setPasswordError('Enter Valid Password');
       hasError = true;
     } else {
       setPasswordError('');
     }
-  
+
     if (nameInput.trim() === '') {
       setNameError('Enter Valid Name');
       hasError = true;
     } else {
       setNameError('');
     }
-  
+
     if (emailInput.trim() === '') {
       setEmailError('Enter an email address');
       hasError = true;
@@ -65,108 +55,112 @@ function Register({Access, SetAccess}) {
     } else {
       setEmailError('');
     }
-  
-    //stop execution if there are any errors
+
     if (hasError) {
       return;
     } 
-    else{
-      try {
-        //proceed with registration 
-        const response = await fetch('/auth/register', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({ usernameInput, emailInput, nameInput, passwordInput }),
-        });
-        const data = await response.json();
-        //api call
-        if (!response.ok) {
-          if (response.status === 409) {
-              setUserNameError('Account Taken');
-              setEmailError('Account Taken');
-          } 
-          else {
-              console.error('HTTP Error:', response.statusText);
-          }
-          return;
-        }
-        //successful registration
-          console.log('Register successful:', data);
-          setUserID(data._id);
-          setUsername(data.username);
-          setName(data.name);
-          SetAccess(true);
-          navigate(`/profile/dashboard/${userID}`);
-      } catch (error) {
-        console.error('Error registering user:', error);
-      }
-    }
-  };
 
+    try {
+      const response = await fetch('/auth/register', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ usernameInput, emailInput, nameInput, passwordInput }),
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        if (response.status === 409) {
+          setUserNameError('Account Taken');
+          setEmailError('Account Taken');
+        } else {
+          console.error('HTTP Error:', response.statusText);
+        }
+        return;
+      }
+
+      setUserID(data._id);
+      setUsername(data.username);
+      setName(data.name);
+      SetAccess(true);
+      navigate(`/profile/dashboard/${data._id}`);
+    } catch (error) {
+      console.error('Error registering user:', error);
+    }
+  }, [usernameInput, emailInput, nameInput, passwordInput, setUserID, setUsername, setName, SetAccess, navigate]);
+
+  const onButtonClick = () => {
+    handleRegister();
+  };
 
   return (
     <div className="mainContainer">
-      <form action="/" method="GET"> 
-        <br/>
+      <form>
+        <br />
         <div className="usernameInput">
           <input
-              value={usernameInput}
-              placeholder="Username"
-              onChange={(ev) => setUserNameInput(ev.target.value)}
-              className={`inputBox ${usernameError ? 'error' : ''}`}
-            required/> 
-            {usernameError && <span className="errorLabel">{usernameError}</span>}
+            value={usernameInput}
+            placeholder="Username"
+            onChange={(ev) => setUserNameInput(ev.target.value)}
+            className={`inputBox ${usernameError ? 'error' : ''}`}
+            required
+          /> 
+          {usernameError && <span className="errorLabel">{usernameError}</span>}
         </div>
 
         <br />
         <div className="passwordInput">
-            <input
-                type="password"
-                value={passwordInput}
-                placeholder="Password"
-                onChange={(ev) => setPasswordInput(ev.target.value)}
-                className={`inputBox ${passwordError ? 'error' : ''}`}
-            required/>
-            {passwordError && <span className="errorLabel">{passwordError}</span>}
+          <input
+            type="password"
+            value={passwordInput}
+            placeholder="Password"
+            onChange={(ev) => setPasswordInput(ev.target.value)}
+            className={`inputBox ${passwordError ? 'error' : ''}`}
+            required
+          />
+          {passwordError && <span className="errorLabel">{passwordError}</span>}
         </div>
 
         <br />
         <div className="emailInput">
-            <input
-                value={emailInput}
-                placeholder="Email"
-                onChange={(ev) => setEmailInput(ev.target.value)}
-                className={`inputBox ${emailError ? 'error' : ''}`}
-            required/>
-            {emailError && <span className="errorLabel">{emailError}</span>}
+          <input
+            type="email"
+            value={emailInput}
+            placeholder="Email"
+            onChange={(ev) => setEmailInput(ev.target.value)}
+            className={`inputBox ${emailError ? 'error' : ''}`}
+            required
+          />
+          {emailError && <span className="errorLabel">{emailError}</span>}
         </div>
 
         <br />
         <div className="nameInput">
-            <input
-                value={nameInput}
-                placeholder="Full Name"
-                onChange={(ev) => setNameInput(ev.target.value)}
-                className={`inputBox ${nameError ? 'error' : ''}`}
-            required/>
-            {nameError && <span className="errorLabel">{nameError}</span>}
+          <input
+            value={nameInput}
+            placeholder="Full Name"
+            onChange={(ev) => setNameInput(ev.target.value)}
+            className={`inputBox ${nameError ? 'error' : ''}`}
+            required
+          />
+          {nameError && <span className="errorLabel">{nameError}</span>}
         </div>
 
         <br />
         <div className="buttonContainer">
-          <input 
-              className="registerButton" 
-              type="button" 
-              onClick={onButtonClick} 
-              value="Register" 
-          required/>
+          <input
+            className="registerButton"
+            type="button"
+            onClick={onButtonClick}
+            value="Register"
+            required
+          />
         </div>
-
       </form>
     </div>
-  )
+  );
 }
 
 export default Register;

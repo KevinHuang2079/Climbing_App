@@ -5,7 +5,7 @@ import ProfilePage from "./pages/ProfilePage.jsx"
 import DashboardPage from './pages/DashboardPage.jsx';
 import SettingsPage from './pages/SettingsPage.jsx';
 
-import { GlobalContext, GlobalProvider } from './GlobalContext.js'
+import {  GlobalProvider } from './GlobalContext.js'
 import ClimbsPage from './pages/ClimbsPage.jsx';
 import ShowFollowers from './components/Profile/Followers';
 import ShowFollowing from './components/Profile/Following';
