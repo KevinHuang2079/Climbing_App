@@ -45,7 +45,7 @@ function Login({ Access, SetAccess }) {
                 headers: {
                     'Content-Type': 'application/json',
                 },
-                body: JSON.stringify({ username: usernameInput, password: passwordInput }),
+                body: JSON.stringify({usernameInput, passwordInput }),
             });
 
             setLoading(false);

@@ -20,54 +20,58 @@ const Posts = () => {
         let imgURL = '';
 
         // Upload video
-        try {
-            const videoFormData = new FormData();
-            videoFormData.append('file', videoFile);
+        if (videoFile) {
+            try {
+                const videoFormData = new FormData();
+                videoFormData.append('file', videoFile);
 
-            const response = await fetch('http://localhost:5000/routes/uploads', {
-                method: 'POST',
-                body: videoFormData,
-            });
+                const response = await fetch('http://localhost:5000/routes/uploads', {
+                    method: 'POST',
+                    body: videoFormData,
+                });
 
-            if (!response.ok) {
-                throw new Error('Network response was not ok');
+                if (!response.ok) {
+                    throw new Error('Network response was not ok');
+                }
+
+                const videoData = await response.json();
+                videoURL = videoData.fileUrl;
+                console.log('Video URL:', videoURL);
+            } catch (err) {
+                console.error(err);
+                setMessage('Error uploading video');
+                return;
             }
-
-            const videoData = await response.json();
-            videoURL = videoData.fileUrl;
-            console.log('Video URL:', videoURL);
-        } catch (err) {
-            console.error(err);
-            setMessage('Error uploading video');
-            return;
         }
 
         // Upload image
-        try {
-            const imgFormData = new FormData();
-            imgFormData.append('file', imgFile);
+        if (imgFile) {
+            try {
+                const imgFormData = new FormData();
+                imgFormData.append('file', imgFile);
 
-            const response = await fetch('http://localhost:5000/routes/uploads', {
-                method: 'POST',
-                body: imgFormData,
-            });
+                const response = await fetch('http://localhost:5000/routes/uploads', {
+                    method: 'POST',
+                    body: imgFormData,
+                });
 
-            if (!response.ok) {
-                throw new Error('Network response was not ok');
+                if (!response.ok) {
+                    throw new Error('Network response was not ok');
+                }
+
+                const imgData = await response.json();
+                imgURL = imgData.fileUrl;
+                console.log('Image URL:', imgURL);
+            } catch (err) {
+                console.error(err);
+                setMessage('Error uploading image');
+                return;
             }
-
-            const imgData = await response.json();
-            imgURL = imgData.fileUrl;
-            console.log('Image URL:', imgURL);
-        } catch (err) {
-            console.error(err);
-            setMessage('Error uploading image');
-            return;
         }
 
         // Create a new post
         try {
-            const response = await fetch('/climbs/createClimb', {
+            const response = await fetch('http://localhost:5000/ClimbingApp/climbs/createClimb', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -80,6 +84,7 @@ const Posts = () => {
             }
 
             const data = await response.json();
+            console.log("----------------asdf----------",data);
             setPosts([...posts, data]);
             setCaption('');
             setVideoFile(null);

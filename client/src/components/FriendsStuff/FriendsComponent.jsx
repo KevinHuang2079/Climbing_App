@@ -1,5 +1,5 @@
 import React, {useState, useEffect} from 'react';
-import { Link } from 'react-router-dom';
+// import { Link } from 'react-router-dom';
 import Friend from "./Friend.jsx"
 import TopSection from "../Navigation/TopSection";
 import LeftSection from '../Navigation/LeftSection';
@@ -7,7 +7,7 @@ import { useParams } from 'react-router-dom';
 import '../../cssStuff/Friends.scss';
 
 
-const FriendsComponent = ({}) =>{
+const FriendsComponent = () =>{
     const [loading, setLoading] = useState(true);
     const [FriendsData, setFriendsData] = useState([]);
     const [userData, setUserData] = useState(null);

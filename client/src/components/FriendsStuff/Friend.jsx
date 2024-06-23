@@ -1,9 +1,9 @@
 import React, {useEffect, useState} from 'react';
-import { Link } from 'react-router-dom';
+// import { Link } from 'react-router-dom';
 
 const Friend = ({userID}) =>{
     const [userData, setUserData] = useState(null);
-    const [loading, setLoading] = useState(true);
+    // const [loading, setLoading] = useState(true);
 
     
     useEffect(() => {
@@ -19,7 +19,7 @@ const Friend = ({userID}) =>{
             } catch (error) {
                 console.error('Error fetching user data:', error);
             } finally {
-                setLoading(false);
+                // setLoading(false);
             }
         };
 
