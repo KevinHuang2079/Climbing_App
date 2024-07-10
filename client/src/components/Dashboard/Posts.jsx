@@ -71,18 +71,19 @@ const Posts = () => {
 
         // Create a new post
         try {
-            const response = await fetch('http://localhost:5000/ClimbingApp/climbs/createClimb', {
+            const date = new Date().toISOString();
+            const response = await fetch('/climbs/createClimb', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
                 },
-                body: JSON.stringify({ caption, videoFile: videoURL, imgFile: imgURL }),
+                body: JSON.stringify({ caption: caption, videoFile: videoURL, imgFile: imgURL, dateCreated: date}),
             });
 
             if (!response.ok) {
                 throw new Error('Network response was not ok');
             }
-
+            console.log(response);
             const data = await response.json();
             console.log("----------------asdf----------",data);
             setPosts([...posts, data]);
@@ -90,12 +91,16 @@ const Posts = () => {
             setVideoFile(null);
             setImgFile(null);
             setShowForm(false);
-            setMessage('Post created successfully');
+            setMessage(null);
         } catch (err) {
             console.error(err);
             setMessage('Error creating post');
         }
     };
+
+    const getPosts = () => {
+        //make request to backend api, request body needs friends list
+    }
 
     const handleVideoFileChange = (e) => {
         const file = e.target.files[0];
@@ -118,43 +123,51 @@ const Posts = () => {
     };
 
     return (
-        <div className='posts-section'>
-            <h2>Posts</h2>
-            <button className="PostButton" onClick={() => setShowForm(!showForm)}>Post A Climb!</button>
-            {showForm && (
-                <div className='post-form'>
-                    <form onSubmit={handlePost}>
-                        <div>
-                            <label>Caption</label>
-                            <input
-                                type='text'
-                                value={caption}
-                                onChange={(e) => setCaption(e.target.value)}
-                                required
-                            />
-                        </div>
-                        <div>
-                            <label>Upload Video</label>
-                            <input
-                                type='file'
-                                accept='video/mp4,video/mpeg'
-                                onChange={handleVideoFileChange}
-                            />
-                        </div>
-                        <div>
-                            <label>Upload Image</label>
-                            <input
-                                type='file'
-                                accept='image/jpeg,image/png'
-                                onChange={handleImgFileChange}
-                            />
-                        </div>
-                        <button type='submit'>Submit Post</button>
-                    </form>
-                    {message && <p>{message}</p>}
-                </div>
-            )}
+        <div className='Posts'>
+
+            <div className='postNew-section'>
+                <h2>Posts</h2>
+                <button className="PostButton" onClick={() => setShowForm(!showForm)}>Post A Climb!</button>
+                {showForm && (
+                    <div className='post-form'>
+                        <form onSubmit={handlePost}>
+                            <div>
+                                <label>Caption</label>
+                                <input
+                                    type='text'
+                                    value={caption}
+                                    onChange={(e) => setCaption(e.target.value)}
+                                    required
+                                />
+                            </div>
+                            <div>
+                                <label>Upload Video</label>
+                                <input
+                                    type='file'
+                                    accept='video/mp4,video/mpeg'
+                                    onChange={handleVideoFileChange}
+                                />
+                            </div>
+                            <div>
+                                <label>Upload Image</label>
+                                <input
+                                    type='file'
+                                    accept='image/jpeg,image/png'
+                                    onChange={handleImgFileChange}
+                                />
+                            </div>
+                            <button type='submit'>Submit Post</button>
+                        </form>
+                        {message && <p>{message}</p>}
+                    </div>
+                )}
+                
+            </div>
+            <div className='showPosts-sections'>
+                
+            </div>
         </div>
+
     );
 };
 

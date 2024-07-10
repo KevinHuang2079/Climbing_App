@@ -12,10 +12,6 @@ function Login({ Access, SetAccess }) {
     const [loading, setLoading] = useState(false);
     const navigate = useNavigate();
 
-    const onButtonClick = () => {
-        handleLogin();
-    };
-
     const handleLogin = async () => {
         let hasError = false;
 
@@ -60,7 +56,9 @@ function Login({ Access, SetAccess }) {
                 return;
             }
 
+            console.log(response);
             const data = await response.json();
+            console.log(data);
             setUserID(data._id);
             setUsername(data.username);
             setName(data.name);
@@ -104,7 +102,7 @@ function Login({ Access, SetAccess }) {
                 <input
                     className="loginButton"
                     type="button"
-                    onClick={onButtonClick}
+                    onClick={handleLogin}
                     value="Login"
                     disabled={loading}
                 />
