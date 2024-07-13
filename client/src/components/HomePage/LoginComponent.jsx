@@ -6,7 +6,7 @@ import { GlobalContext } from '../../GlobalContext';
 function Login({ Access, SetAccess }) {
     const [usernameInput, setUserNameInput] = useState('');
     const [passwordInput, setPassword] = useState('');
-    const { setUserID, setUsername, setName } = useContext(GlobalContext);
+    const { setUserID, setUsername, setName, setFriends } = useContext(GlobalContext);
     const [usernameError, setUserNameError] = useState('');
     const [passwordError, setPasswordError] = useState('');
     const [loading, setLoading] = useState(false);
@@ -62,6 +62,7 @@ function Login({ Access, SetAccess }) {
             setUserID(data._id);
             setUsername(data.username);
             setName(data.name);
+            setFriends(data.friends);
 
             SetAccess(true);
             navigate(`/profile/dashboard/${data._id}`);

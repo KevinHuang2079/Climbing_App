@@ -1,4 +1,5 @@
-import React, { useState } from 'react';
+import React, { useContext, useState, useEffect } from 'react';
+import { GlobalContext } from '../../GlobalContext';
 
 const Posts = () => {
     const [posts, setPosts] = useState([]);
@@ -7,6 +8,11 @@ const Posts = () => {
     const [videoFile, setVideoFile] = useState(null);
     const [imgFile, setImgFile] = useState(null);
     const [message, setMessage] = useState('');
+    const { friends } = useContext(GlobalContext);
+
+    useEffect(() => {
+        getPosts();
+    }, []);
 
     const handlePost = async (e) => {
         e.preventDefault();
@@ -98,8 +104,26 @@ const Posts = () => {
         }
     };
 
-    const getPosts = () => {
+    const getPosts = async() => {
         //make request to backend api, request body needs friends list
+        try {
+            console.log(friends);
+            const response = await fetch('/climbs/getPosts', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({friends}),
+            });
+            const data = await response.json();
+            console.log(data)
+
+            
+            setPosts(data);
+        }
+        catch(error){   
+            console.error('Error getting posts: ', error);
+        }
     }
 
     const handleVideoFileChange = (e) => {
@@ -164,7 +188,14 @@ const Posts = () => {
                 
             </div>
             <div className='showPosts-sections'>
-                
+                {posts.map(post => (
+                    <div key={post._id} className='post'>
+                        <p>{post.caption}</p>
+                        {post.videoFile && <video src={post.videoFile} controls />}
+                        {post.imgFile && <img src={post.imgFile} alt="Post" />}
+                        <p>{new Date(post.dateCreated).toLocaleString()}</p>
+                    </div>
+                ))}
             </div>
         </div>
 
