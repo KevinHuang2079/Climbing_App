@@ -8,11 +8,31 @@ const Posts = () => {
     const [videoFile, setVideoFile] = useState(null);
     const [imgFile, setImgFile] = useState(null);
     const [message, setMessage] = useState('');
-    const { friends } = useContext(GlobalContext);
+    const { friends, userID } = useContext(GlobalContext);
+    const [ NumPostLikes, setNumPostLikes] = useState();
 
     useEffect(() => {
         getPosts();
     }, []);
+
+    const likePost = async(postID) => {    
+        console.log("CLIENT:", postID, userID);
+        try {
+            const response = await fetch('/climbs/likePost', {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({postID, userID}),
+            });
+            const data = await response.json();
+            setNumPostLikes(data.likes.length);
+        }
+        catch (err){
+            console.error('Posts:', err);
+        }
+
+    }
 
     const handlePost = async (e) => {
         e.preventDefault();
@@ -105,9 +125,7 @@ const Posts = () => {
     };
 
     const getPosts = async() => {
-        //make request to backend api, request body needs friends list
         try {
-            console.log(friends);
             const response = await fetch('/climbs/getPosts', {
                 method: 'POST',
                 headers: {
@@ -194,6 +212,8 @@ const Posts = () => {
                         {post.videoFile && <video src={post.videoFile} controls />}
                         {post.imgFile && <img src={post.imgFile} alt="Post" />}
                         <p>{new Date(post.dateCreated).toLocaleString()}</p>
+                        <p>Likes: {NumPostLikes}</p>
+                        <button className="LikePostButton" onClick={() => likePost(post._id)}>Like Post</button>
                     </div>
                 ))}
             </div>
