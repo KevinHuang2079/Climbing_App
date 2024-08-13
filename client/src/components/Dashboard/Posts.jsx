@@ -9,11 +9,38 @@ const Posts = () => {
     const [imgFile, setImgFile] = useState(null);
     const [message, setMessage] = useState('');
     const { friends, userID } = useContext(GlobalContext);
-    const [ NumPostLikes, setNumPostLikes] = useState();
+    const [openComments, setOpenComments] = useState({});
+    const [commentText, setCommentText] = useState('');
+    const [commentImage, setCommentImage] = useState(null);
+
+
 
     useEffect(() => {
         getPosts();
     }, []);
+
+    const handleImageChange = (e) => {
+        const file = e.target.files[0];
+        setCommentImage(file);
+    }
+
+    const handleCommentSubmit = async(postID) => {
+        try{
+            const formData = new FormData();
+            formData.append('commentText', commentText)
+            formData.append('userID', userID)
+            formData.append('postID', postID)
+            if (commentImage){
+                formData.append('commentImage', commentImage)
+            }   
+            
+            setCommentImage(null);
+            setCommentText('');
+        }
+        catch (err) {
+            console.error("Posts: Error submitting comment", err);
+        }
+    }
 
     const likePost = async(postID) => {    
         console.log("CLIENT:", postID, userID);
@@ -25,13 +52,27 @@ const Posts = () => {
                 },
                 body: JSON.stringify({postID, userID}),
             });
-            const data = await response.json();
-            setNumPostLikes(data.likes.length);
+            // const data = await response.json();
+
+            if (response.ok) {
+                const updatedPost = await
+                setPosts(prevPosts => 
+                    prevPosts.map(post => 
+                        post._id === postID ? { ...post, likes: updatedPost.likes } : post
+                    )
+                );
+            }
         }
         catch (err){
             console.error('Posts:', err);
         }
+    }
 
+    const toggleComments = async(postID) => {
+        setOpenComments(prev => ({
+            ...prev,
+            [postID]: !prev[postID] 
+        }));
     }
 
     const handlePost = async (e) => {
@@ -51,7 +92,7 @@ const Posts = () => {
                 const videoFormData = new FormData();
                 videoFormData.append('file', videoFile);
 
-                const response = await fetch('http://localhost:5000/routes/uploads', {
+                const response = await fetch('http://localhost:5000/routes/posts/upload', {
                     method: 'POST',
                     body: videoFormData,
                 });
@@ -76,7 +117,7 @@ const Posts = () => {
                 const imgFormData = new FormData();
                 imgFormData.append('file', imgFile);
 
-                const response = await fetch('http://localhost:5000/routes/uploads', {
+                const response = await fetch('http://localhost:5000/routes/posts/upload', {
                     method: 'POST',
                     body: imgFormData,
                 });
@@ -112,7 +153,7 @@ const Posts = () => {
             console.log(response);
             const data = await response.json();
             console.log("----------------asdf----------",data);
-            setPosts([...posts, data]);
+            setPosts(prevPosts => [...prevPosts, data]);
             setCaption('');
             setVideoFile(null);
             setImgFile(null);
@@ -212,8 +253,28 @@ const Posts = () => {
                         {post.videoFile && <video src={post.videoFile} controls />}
                         {post.imgFile && <img src={post.imgFile} alt="Post" />}
                         <p>{new Date(post.dateCreated).toLocaleString()}</p>
-                        <p>Likes: {NumPostLikes}</p>
+                        <p>Likes: {post.likes.length}</p>
                         <button className="LikePostButton" onClick={() => likePost(post._id)}>Like Post</button>
+                        <button className="CommentsButton" onClick={() => toggleComments(post._id)}> Comment</button>
+
+                        {openComments[post._id] && (
+                            <div className="CommentSection"> 
+                                <div className="comment-form">
+                                    <textArea
+                                        placeholder="Add a comment..."
+                                        value="commentText"
+                                        onChange={(e)=> setCommentText(e.target.value)
+                                        }
+                                    />
+                                    <input
+                                        type="file"
+                                        accept="image/jpeg, image/png"
+                                        onChange={handleImageChange}
+                                    />
+                                    <button onClick={() => handleCommentSubmit(post._id)}>Submit</button>
+                                </div>
+                            </div>
+                        )}
                     </div>
                 ))}
             </div>
