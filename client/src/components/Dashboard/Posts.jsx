@@ -43,7 +43,6 @@ const Posts = () => {
     }
 
     const likePost = async(postID) => {    
-        console.log("CLIENT:", postID, userID);
         try {
             const response = await fetch('/climbs/likePost', {
                 method: 'PUT',
@@ -52,14 +51,23 @@ const Posts = () => {
                 },
                 body: JSON.stringify({postID, userID}),
             });
-            // const data = await response.json();
-
+            if (!response.ok) {
+                const errorText = await response.text();
+                console.error(`Failed to like post: ${errorText}`);
+                return;
+            }
+            console.log(response.json());
+            console.log("CLIENT:", posts);
             if (response.ok) {
-                const updatedPost = await
                 setPosts(prevPosts => 
-                    prevPosts.map(post => 
-                        post._id === postID ? { ...post, likes: updatedPost.likes } : post
-                    )
+                    prevPosts.map(post => {
+                        if (post._id === postID) {
+                            const isLiked = post.likes.includes(userID);
+                            const newLikesCount = isLiked ? post.likes.length - 1 : post.likes.length + 1;
+                            return { ...post, likes: Array(newLikesCount).fill(null) };
+                        }
+                        return post;
+                    })
                 );
             }
         }
