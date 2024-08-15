@@ -21,19 +21,56 @@ const Posts = () => {
 
     const handleImageChange = (e) => {
         const file = e.target.files[0];
-        setCommentImage(file);
+        if (file && (file.type === 'image/jpeg' || file.type === 'image/png')) {
+            setCommentImage(file);
+        } else {
+            setCommentImage(null);
+            alert('Please select a valid image file (JPEG or PNG)');
+        }
     }
 
     const handleCommentSubmit = async(postID) => {
-        try{
-            const formData = new FormData();
-            formData.append('commentText', commentText)
-            formData.append('userID', userID)
-            formData.append('postID', postID)
+        try{    
+            let imgURL = '';
             if (commentImage){
-                formData.append('commentImage', commentImage)
-            }   
-            
+                try {
+                    const imgFormData = new FormData();
+                    imgFormData.append('file', commentImage);
+    
+                    const response = await fetch('http://localhost:5000/routes/comments/upload', {
+                        method: 'POST',
+                        body: imgFormData,
+                    });
+    
+                    if (!response.ok) {
+                        throw new Error('Network response was not ok');
+                    }
+    
+                    const imgData = await response.json();
+                    imgURL = imgData.fileUrl;
+                    console.log('Image URL:', imgURL);
+                } catch (err) {
+                    console.error(err);
+                    return;
+                }
+            }
+            console.log("IMGFILE", imgURL);
+            const response = await fetch('/climbs/commentPost', {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ 
+                    commentText: commentText, 
+                    userID: userID, 
+                    postID: postID, 
+                    imgURL: imgURL, 
+                }),
+            });
+
+            if (!response.ok) {
+                throw new Error('Failed to submit comment');
+            }
             setCommentImage(null);
             setCommentText('');
         }
@@ -42,39 +79,53 @@ const Posts = () => {
         }
     }
 
-    const likePost = async(postID) => {    
+    const likePost = async (postID) => {
+        setPosts(prevPosts => 
+            prevPosts.map(post => 
+                post._id === postID 
+                ? { ...post, likes: post.likes.includes(userID) 
+                    ? post.likes.filter(id => id !== userID) 
+                    : [...post.likes, userID] }
+                : post
+            )
+        );
+    
         try {
             const response = await fetch('/climbs/likePost', {
                 method: 'PUT',
                 headers: {
                     'Content-Type': 'application/json',
                 },
-                body: JSON.stringify({postID, userID}),
+                body: JSON.stringify({ postID, userID }),
             });
+    
             if (!response.ok) {
                 const errorText = await response.text();
                 console.error(`Failed to like post: ${errorText}`);
-                return;
-            }
-            console.log(response.json());
-            console.log("CLIENT:", posts);
-            if (response.ok) {
+                //Revert the optimistic update
                 setPosts(prevPosts => 
-                    prevPosts.map(post => {
-                        if (post._id === postID) {
-                            const isLiked = post.likes.includes(userID);
-                            const newLikesCount = isLiked ? post.likes.length - 1 : post.likes.length + 1;
-                            return { ...post, likes: Array(newLikesCount).fill(null) };
-                        }
-                        return post;
-                    })
+                    prevPosts.map(post => 
+                        post._id === postID 
+                        ? { ...post, likes: post.likes.includes(userID) 
+                            ? [...post.likes, userID] 
+                            : post.likes.filter(id => id !== userID) }
+                        : post
+                    )
                 );
             }
-        }
-        catch (err){
+        } catch (err) {
             console.error('Posts:', err);
+            //Revert the optimistic update in case of an error
+            setPosts(prevPosts => 
+                prevPosts.map(post => 
+                    post._id === postID 
+                    ? { ...post, likes: post.likes.includes(userID) ? [...post.likes, userID] : post.likes.filter(id => id !== userID) }
+                    : post
+                )
+            );
         }
-    }
+    };
+    
 
     const toggleComments = async(postID) => {
         setOpenComments(prev => ({
@@ -158,9 +209,7 @@ const Posts = () => {
             if (!response.ok) {
                 throw new Error('Network response was not ok');
             }
-            console.log(response);
             const data = await response.json();
-            console.log("----------------asdf----------",data);
             setPosts(prevPosts => [...prevPosts, data]);
             setCaption('');
             setVideoFile(null);
@@ -268,15 +317,15 @@ const Posts = () => {
                         {openComments[post._id] && (
                             <div className="CommentSection"> 
                                 <div className="comment-form">
-                                    <textArea
+                                    <textarea
                                         placeholder="Add a comment..."
-                                        value="commentText"
+                                        value={commentText}
                                         onChange={(e)=> setCommentText(e.target.value)
                                         }
                                     />
                                     <input
                                         type="file"
-                                        accept="image/jpeg, image/png"
+                                        accept='image/jpeg,image/png'
                                         onChange={handleImageChange}
                                     />
                                     <button onClick={() => handleCommentSubmit(post._id)}>Submit</button>
