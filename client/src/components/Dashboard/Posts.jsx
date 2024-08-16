@@ -12,6 +12,7 @@ const Posts = () => {
     const [openComments, setOpenComments] = useState({});
     const [commentText, setCommentText] = useState('');
     const [commentImage, setCommentImage] = useState(null);
+    //SHOW COMMENTS (HTML)
 
 
 
@@ -19,6 +20,20 @@ const Posts = () => {
         getPosts();
     }, []);
 
+    const getComments = async(postID) => {
+        try{
+            const response = await fetch(`/climbs/getComments?postID=${encodeURIComponent(postID)}`, {
+                method: 'GET',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+            });
+
+        }
+        catch(err) {
+            console.error("CLIENT:", err);
+        }
+    }
     const handleImageChange = (e) => {
         const file = e.target.files[0];
         if (file && (file.type === 'image/jpeg' || file.type === 'image/png')) {
@@ -132,6 +147,7 @@ const Posts = () => {
             ...prev,
             [postID]: !prev[postID] 
         }));
+        getComments(postID);
     }
 
     const handlePost = async (e) => {
