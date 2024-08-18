@@ -3,16 +3,20 @@ import { GlobalContext } from '../../GlobalContext';
 
 const Posts = () => {
     const [posts, setPosts] = useState([]);
+    const { friends, userID } = useContext(GlobalContext);
+
+    //post submission
     const [showForm, setShowForm] = useState(false);
     const [caption, setCaption] = useState('');
     const [videoFile, setVideoFile] = useState(null);
     const [imgFile, setImgFile] = useState(null);
     const [message, setMessage] = useState('');
-    const { friends, userID } = useContext(GlobalContext);
-    const [openComments, setOpenComments] = useState({});
+
+    //comments
+    const [openComments, setOpenComments] = useState({});//key=postID, value=bool {tracks which post has open comments}
+    const [displayedComments, setDisplayedComments] = useState({});//key=postID, value=array {displayed comments for a post}
     const [commentText, setCommentText] = useState('');
     const [commentImage, setCommentImage] = useState(null);
-    //SHOW COMMENTS (HTML)
 
 
 
@@ -20,20 +24,41 @@ const Posts = () => {
         getPosts();
     }, []);
 
-    const getComments = async(postID) => {
-        try{
-            const response = await fetch(`/climbs/getComments?postID=${encodeURIComponent(postID)}`, {
-                method: 'GET',
+    const likeComment = async(commentID) => {
+        try {
+            const response = await fetch('/climbs/likeAnUpload', {
+                method: 'PUT',
                 headers: {
                     'Content-Type': 'application/json',
                 },
+                body: JSON.stringify({ commentID, userID, choice: 'post'}),
             });
-
         }
         catch(err) {
             console.error("CLIENT:", err);
         }
     }
+
+    const getComments = async(postID) => {
+        try{
+            const date = new Date().toISOString();
+            const response = await fetch(`/climbs/getComments?postID=${encodeURIComponent(postID)}&date=${encodeURIComponent(date)}`, {
+                method: 'GET',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+            });
+            const comments = await response.json();
+            console.log("GET COMMENTS:", comments);
+            setDisplayedComments(prev => ({
+                ...prev, [postID]: [ ...([] || prev[postID]), ...comments]
+            }));
+        }
+        catch(err) {
+            console.error("CLIENT:", err);
+        }
+    }
+
     const handleImageChange = (e) => {
         const file = e.target.files[0];
         if (file && (file.type === 'image/jpeg' || file.type === 'image/png')) {
@@ -86,6 +111,10 @@ const Posts = () => {
             if (!response.ok) {
                 throw new Error('Failed to submit comment');
             }
+            const comment = await response.json();
+            setDisplayedComments(prev => ({
+                ...prev, [postID]: [ ...([] || prev[postID]), comment]
+            }));
             setCommentImage(null);
             setCommentText('');
         }
@@ -106,12 +135,12 @@ const Posts = () => {
         );
     
         try {
-            const response = await fetch('/climbs/likePost', {
+            const response = await fetch('/climbs/likeAnUpload', {
                 method: 'PUT',
                 headers: {
                     'Content-Type': 'application/json',
                 },
-                body: JSON.stringify({ postID, userID }),
+                body: JSON.stringify({ postID, userID, choice: 'post'}),
             });
     
             if (!response.ok) {
@@ -147,7 +176,6 @@ const Posts = () => {
             ...prev,
             [postID]: !prev[postID] 
         }));
-        getComments(postID);
     }
 
     const handlePost = async (e) => {
@@ -328,7 +356,8 @@ const Posts = () => {
                         <p>{new Date(post.dateCreated).toLocaleString()}</p>
                         <p>Likes: {post.likes.length}</p>
                         <button className="LikePostButton" onClick={() => likePost(post._id)}>Like Post</button>
-                        <button className="CommentsButton" onClick={() => toggleComments(post._id)}> Comment</button>
+                        <button className="CommentsButton" onClick={() => { toggleComments(post._id); getComments(post._id); }}> Comment</button>
+
 
                         {openComments[post._id] && (
                             <div className="CommentSection"> 
@@ -348,6 +377,19 @@ const Posts = () => {
                                 </div>
                             </div>
                         )}
+                        {openComments[post._id] && displayedComments[post._id] && displayedComments[post._id].length > 0 &&(
+                            <div className='comment-list'>
+                                {displayedComments[post._id].map(comment =>
+                                    <div key={comment._id} className='comment'>
+                                        <p><strong>{comment.userID}</strong>: {comment.commentText}</p>
+                                        <p>{new Date(comment.dateCreated).toLocaleString()}</p>
+                                        {comment.imgFile && <img src={comment.imgFile} alt="" />}
+                                        <p>Likes: {comment.numLikes}</p>
+                                        <button onClick={() => likeComment(comment._id)}>Like</button>
+                                    </div>
+                                )}
+                            </div>
+                        )} 
                     </div>
                 ))}
             </div>
