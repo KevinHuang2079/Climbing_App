@@ -24,18 +24,51 @@ const Posts = () => {
         getPosts();
     }, []);
 
-    const likeComment = async(commentID) => {
+    const likeComment = async(commentID, postID) => {
+        setDisplayedComments(prevComments => ({
+            ...prevComments,
+            [postID]: prevComments[postID].map(comment => 
+                comment._id === commentID 
+                ? { ...comment, likes: comment.likes.includes(userID) 
+                    ? comment.likes.filter(id => id !== userID) 
+                    : [...comment.likes, userID] }
+                : comment
+            )
+        }));
+        
         try {
             const response = await fetch('/climbs/likeAnUpload', {
                 method: 'PUT',
                 headers: {
                     'Content-Type': 'application/json',
                 },
-                body: JSON.stringify({ commentID, userID, choice: 'post'}),
+                body: JSON.stringify({ objectToLikeID: commentID, userID, choice: 'comment'}),
             });
+            if (!response){
+                setDisplayedComments(prevComments => ({
+                    ...prevComments,
+                    [postID]: prevComments[postID].map(comment => 
+                        comment._id === commentID 
+                        ? { ...comment, numLikes: comment.likes.includes(userID) 
+                            ? [...comment.likes, userID] 
+                            : comment.likes.filter(id => id !== userID) }
+                        : comment
+                    )
+                }));
+            }
         }
         catch(err) {
             console.error("CLIENT:", err);
+            setDisplayedComments(prevComments => ({
+                ...prevComments,
+                [postID]: prevComments[postID].map(comment => 
+                    comment._id === commentID 
+                    ? { ...comment, numLikes: comment.likes.includes(userID) 
+                        ? [...comment.likes, userID] 
+                        : comment.likes.filter(id => id !== userID) }
+                    : comment
+                )
+            }));
         }
     }
 
@@ -140,7 +173,7 @@ const Posts = () => {
                 headers: {
                     'Content-Type': 'application/json',
                 },
-                body: JSON.stringify({ postID, userID, choice: 'post'}),
+                body: JSON.stringify({ objectToLikeID: postID, userID, choice: 'post'}),
             });
     
             if (!response.ok) {
@@ -384,8 +417,8 @@ const Posts = () => {
                                         <p><strong>{comment.userID}</strong>: {comment.commentText}</p>
                                         <p>{new Date(comment.dateCreated).toLocaleString()}</p>
                                         {comment.imgFile && <img src={comment.imgFile} alt="" />}
-                                        <p>Likes: {comment.numLikes}</p>
-                                        <button onClick={() => likeComment(comment._id)}>Like</button>
+                                        <p>Likes: { comment.likes.length}</p>
+                                        <button onClick={() => likeComment(comment._id, post._id)}>Like</button>
                                     </div>
                                 )}
                             </div>
