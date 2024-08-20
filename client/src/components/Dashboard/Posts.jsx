@@ -3,13 +3,14 @@ import { GlobalContext } from '../../GlobalContext';
 
 const Posts = () => {
     const [posts, setPosts] = useState([]);
-    const { friends, userID } = useContext(GlobalContext);
+    const { username, friends, userID } = useContext(GlobalContext);
+    const [currentMediaIndex, setCurrentMediaIndex] = useState(0);
 
     //post submission
     const [showForm, setShowForm] = useState(false);
     const [caption, setCaption] = useState('');
-    const [videoFile, setVideoFile] = useState(null);
-    const [imgFile, setImgFile] = useState(null);
+    const [videoFiles, setVideoFiles] = useState([]);
+    const [imgFiles, setImgFiles] = useState([]);
     const [message, setMessage] = useState('');
 
     //comments
@@ -19,10 +20,26 @@ const Posts = () => {
     const [commentImage, setCommentImage] = useState(null);
 
 
-
     useEffect(() => {
         getPosts();
     }, []);
+
+    const handleNext = () => {
+        setCurrentMediaIndex(prevIndex => (prevIndex + 1) % (imgFiles.length + videoFiles.length));
+    };
+    
+    const handlePrev = () => {
+        setCurrentMediaIndex(prevIndex => (prevIndex - 1 + (imgFiles.length + videoFiles.length)) % (imgFiles.length + videoFiles.length));
+    };
+
+    const getCurrentMedia = () => {
+        if (currentMediaIndex < videoFiles.length) {
+            return <video src={videoFiles[currentMediaIndex]} controls />;
+        } else {
+            return <img src={imgFiles[currentMediaIndex - videoFiles.length]} alt="Post media" />;
+        }
+    };
+    
 
     const likeComment = async(commentID, postID) => {
         setDisplayedComments(prevComments => ({
@@ -94,12 +111,7 @@ const Posts = () => {
 
     const handleImageChange = (e) => {
         const file = e.target.files[0];
-        if (file && (file.type === 'image/jpeg' || file.type === 'image/png')) {
-            setCommentImage(file);
-        } else {
-            setCommentImage(null);
-            alert('Please select a valid image file (JPEG or PNG)');
-        }
+        setCommentImage(file);
     }
 
     const handleCommentSubmit = async(postID) => {
@@ -134,6 +146,7 @@ const Posts = () => {
                     'Content-Type': 'application/json',
                 },
                 body: JSON.stringify({ 
+                    userName: username,
                     commentText: commentText, 
                     userID: userID, 
                     postID: postID, 
@@ -212,92 +225,38 @@ const Posts = () => {
     }
 
     const handlePost = async (e) => {
-        e.preventDefault();
-
-        if (!caption) {
-            setMessage('Caption is required');
-            return;
-        }
-
-        let videoURL = '';
-        let imgURL = '';
-
-        // Upload video
-        if (videoFile) {
-            try {
-                const videoFormData = new FormData();
-                videoFormData.append('file', videoFile);
-
-                const response = await fetch('http://localhost:5000/routes/posts/upload', {
-                    method: 'POST',
-                    body: videoFormData,
-                });
-
-                if (!response.ok) {
-                    throw new Error('Network response was not ok');
-                }
-
-                const videoData = await response.json();
-                videoURL = videoData.fileUrl;
-                console.log('Video URL:', videoURL);
-            } catch (err) {
-                console.error(err);
-                setMessage('Error uploading video');
-                return;
-            }
-        }
-
-        // Upload image
-        if (imgFile) {
-            try {
-                const imgFormData = new FormData();
-                imgFormData.append('file', imgFile);
-
-                const response = await fetch('http://localhost:5000/routes/posts/upload', {
-                    method: 'POST',
-                    body: imgFormData,
-                });
-
-                if (!response.ok) {
-                    throw new Error('Network response was not ok');
-                }
-
-                const imgData = await response.json();
-                imgURL = imgData.fileUrl;
-                console.log('Image URL:', imgURL);
-            } catch (err) {
-                console.error(err);
-                setMessage('Error uploading image');
-                return;
-            }
-        }
-
-        // Create a new post
+        e.preventDefault(); // Prevent default form submission
+    
         try {
-            const date = new Date().toISOString();
-            const response = await fetch('/climbs/createClimb', {
+            // Create FormData to submit caption and files
+            const formData = new FormData();
+            formData.append('caption', caption);
+            
+            videoFiles.forEach(file => formData.append('videos', file));
+            imgFiles.forEach(file => formData.append('images', file));
+    
+            const response = await fetch('/your-api-endpoint', {
                 method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({ caption: caption, videoFile: videoURL, imgFile: imgURL, dateCreated: date}),
+                body: formData,
             });
-
+    
             if (!response.ok) {
                 throw new Error('Network response was not ok');
             }
-            const data = await response.json();
-            setPosts(prevPosts => [...prevPosts, data]);
+    
+            // Handle successful response
+            const result = await response.json();
+            console.log('Post submitted:', result);
             setCaption('');
-            setVideoFile(null);
-            setImgFile(null);
-            setShowForm(false);
-            setMessage(null);
+            setVideoFiles([]);
+            setImgFiles([]);
+            setMessage('Post submitted successfully');
         } catch (err) {
-            console.error(err);
-            setMessage('Error creating post');
+            console.error('Error submitting post:', err);
+            setMessage('Error submitting post');
         }
     };
+    
 
     const getPosts = async() => {
         try {
@@ -320,23 +279,24 @@ const Posts = () => {
     }
 
     const handleVideoFileChange = (e) => {
-        const file = e.target.files[0];
-        if (file && (file.type === 'video/mp4' || file.type === 'video/mpeg')) {
-            setVideoFile(file);
-        } else {
-            setVideoFile(null);
-            alert('Please select a valid video file (MP4 or MPEG)');
+        const files = Array.from(e.target.files);
+        
+        if (files.length + videoFiles.length > 2) {
+            setMessage('You can only upload a maximum of 2 videos');
+            return;
         }
+        setVideoFiles(prev => [...prev, ...files]);
+    
     };
+    
 
     const handleImgFileChange = (e) => {
-        const file = e.target.files[0];
-        if (file && (file.type === 'image/jpeg' || file.type === 'image/png')) {
-            setImgFile(file);
-        } else {
-            setImgFile(null);
-            alert('Please select a valid image file (JPEG or PNG)');
+        const files = Array.from(e.target.files);
+        if (files.length + imgFiles.length > 5) {
+            setMessage('You can only upload a maximum of 5 photos');
+            return;
         }
+        setImgFiles(prev => [...prev, ...files]);
     };
 
     return (
@@ -361,7 +321,8 @@ const Posts = () => {
                                 <label>Upload Video</label>
                                 <input
                                     type='file'
-                                    accept='video/mp4,video/mpeg'
+                                    accept="video/*"
+                                    multiple
                                     onChange={handleVideoFileChange}
                                 />
                             </div>
@@ -369,7 +330,8 @@ const Posts = () => {
                                 <label>Upload Image</label>
                                 <input
                                     type='file'
-                                    accept='image/jpeg,image/png'
+                                    accept="image/*"
+                                    multiple
                                     onChange={handleImgFileChange}
                                 />
                             </div>
@@ -383,9 +345,12 @@ const Posts = () => {
             <div className='showPosts-sections'>
                 {posts.map(post => (
                     <div key={post._id} className='post'>
-                        <p>{post.caption}</p>
-                        {post.videoFile && <video src={post.videoFile} controls />}
-                        {post.imgFile && <img src={post.imgFile} alt="Post" />}
+                        <p><strong>{post.userName}</strong>: {post.caption}</p>
+                        <div className="media-slider">
+                            <button onClick={handlePrev}>{"<"}</button>
+                            {getCurrentMedia()}
+                            <button onClick={handleNext}>{">"}</button>
+                        </div>
                         <p>{new Date(post.dateCreated).toLocaleString()}</p>
                         <p>Likes: {post.likes.length}</p>
                         <button className="LikePostButton" onClick={() => likePost(post._id)}>Like Post</button>
@@ -403,7 +368,7 @@ const Posts = () => {
                                     />
                                     <input
                                         type="file"
-                                        accept='image/jpeg,image/png'
+                                        accept="image/*"
                                         onChange={handleImageChange}
                                     />
                                     <button onClick={() => handleCommentSubmit(post._id)}>Submit</button>
@@ -414,7 +379,7 @@ const Posts = () => {
                             <div className='comment-list'>
                                 {displayedComments[post._id].map(comment =>
                                     <div key={comment._id} className='comment'>
-                                        <p><strong>{comment.userID}</strong>: {comment.commentText}</p>
+                                        <p><strong>{comment.userName}</strong>: {comment.commentText}</p>
                                         <p>{new Date(comment.dateCreated).toLocaleString()}</p>
                                         {comment.imgFile && <img src={comment.imgFile} alt="" />}
                                         <p>Likes: { comment.likes.length}</p>
