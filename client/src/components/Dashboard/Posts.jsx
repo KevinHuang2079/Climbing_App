@@ -1,11 +1,10 @@
-import React, { useContext, useState, useEffect } from 'react';
+import React, { useMemo, useContext, useState, useEffect } from 'react';
 import { GlobalContext } from '../../GlobalContext';
 
 const Posts = () => {
     const [posts, setPosts] = useState([]);
     const { username, friends, userID } = useContext(GlobalContext);
-    const [currentMediaIndex, setCurrentMediaIndex] = useState(0);
-
+    const [currentMediaIndices, setCurrentMediaIndices]  = useState({});//key=postID, value=int (index for iterating through the post's media files)
     //post submission
     const [showForm, setShowForm] = useState(false);
     const [caption, setCaption] = useState('');
@@ -18,28 +17,71 @@ const Posts = () => {
     const [displayedComments, setDisplayedComments] = useState({});//key=postID, value=array {displayed comments for a post}
     const [commentText, setCommentText] = useState('');
     const [commentImage, setCommentImage] = useState(null);
+    
 
 
     useEffect(() => {
-        getPosts();
+        getPosts(); // Assuming this function updates the `posts` state
     }, []);
+     
+    useEffect(() => {
+        if (posts.length > 0) {
+            console.log('Initializing media indices for posts.');
+            setCurrentMediaIndices(() => {
+                const newIndices = {};
+                posts.forEach(post => {
+                    newIndices[post._id] = 0;  // Initialize the index for each post
+                });
+                return newIndices;
+            });
+        }
+    }, [posts]);
+    
 
-    const handleNext = () => {
-        setCurrentMediaIndex(prevIndex => (prevIndex + 1) % (imgFiles.length + videoFiles.length));
+    const createPostMap = (posts) => {
+        return posts.reduce((acc, post) => {
+            acc[post._id] = post;
+            return acc;
+        }, {});
     };
     
-    const handlePrev = () => {
-        setCurrentMediaIndex(prevIndex => (prevIndex - 1 + (imgFiles.length + videoFiles.length)) % (imgFiles.length + videoFiles.length));
+    const postMap = useMemo(() => createPostMap(posts), [posts]);
+    const handleNext = (postID) => {
+        const imgFiles = postMap[postID].imgFiles;
+        const videoFiles = postMap[postID].videoFiles;
+        
+        setCurrentMediaIndices(prevIndexes => ({
+            ...prevIndexes,
+            [postID]: (prevIndexes[postID] + 1) % (imgFiles.length + videoFiles.length)
+        }));
+    };
+    
+    const handlePrev = (postID) => {
+        const imgFiles = postMap[postID].imgFiles;
+        const videoFiles = postMap[postID].videoFiles;
+        
+        setCurrentMediaIndices(prevIndexes => ({
+            ...prevIndexes,
+            [postID]: (prevIndexes[postID] - 1 + (imgFiles.length + videoFiles.length)) % (imgFiles.length + videoFiles.length)
+        }));
     };
 
-    const getCurrentMedia = () => {
-        if (currentMediaIndex < videoFiles.length) {
-            return <video src={videoFiles[currentMediaIndex]} controls />;
+
+    const getCurrentMedia = (postID) => {
+        const currentMediaIndex = currentMediaIndices[postID];
+        const post = posts.find(p => p._id === postID);
+    
+        if (!post || currentMediaIndex === undefined) {
+            return <div>Loading media...</div>;  // Or any placeholder while the indices are being set
+        }
+    
+        if (currentMediaIndex < post.videoFiles.length) {
+            return <video src={post.videoFiles[currentMediaIndex]} controls />;
         } else {
-            return <img src={imgFiles[currentMediaIndex - videoFiles.length]} alt="Post media" />;
+            const imgIndex = currentMediaIndex - post.videoFiles.length;
+            return <img src={post.imgFiles[imgIndex]} alt="Post media" />;
         }
     };
-    
 
     const likeComment = async(commentID, postID) => {
         setDisplayedComments(prevComments => ({
@@ -99,7 +141,6 @@ const Posts = () => {
                 },
             });
             const comments = await response.json();
-            console.log("GET COMMENTS:", comments);
             setDisplayedComments(prev => ({
                 ...prev, [postID]: [ ...([] || prev[postID]), ...comments]
             }));
@@ -139,7 +180,6 @@ const Posts = () => {
                     return;
                 }
             }
-            console.log("IMGFILE", imgURL);
             const response = await fetch('/climbs/commentPost', {
                 method: 'PUT',
                 headers: {
@@ -225,59 +265,102 @@ const Posts = () => {
     }
 
     const handlePost = async (e) => {
-        e.preventDefault(); // Prevent default form submission
+        e.preventDefault();
+    
+        if (!caption) {
+            setMessage('Caption is required');
+            return;
+        }
     
         try {
-            // Create FormData to submit caption and files
-            const formData = new FormData();
-            formData.append('caption', caption);
-            
-            videoFiles.forEach(file => formData.append('videos', file));
-            imgFiles.forEach(file => formData.append('images', file));
+            const videoURLs = await Promise.all(videoFiles.map(async (videoFile) => {
+                const videoFormData = new FormData();
+                videoFormData.append('file', videoFile);
     
-            const response = await fetch('/your-api-endpoint', {
+                const response = await fetch('http://localhost:5000/routes/posts/upload', {
+                    method: 'POST',
+                    body: videoFormData,
+                });
+    
+                if (!response.ok) {
+                    throw new Error('Failed to upload video');
+                }
+    
+                const videoData = await response.json();
+                return videoData.fileUrl;
+            }));
+    
+            const imgURLs = await Promise.all(imgFiles.map(async (imgFile) => {
+                const imgFormData = new FormData();
+                imgFormData.append('file', imgFile);
+    
+                const response = await fetch('http://localhost:5000/routes/posts/upload', {
+                    method: 'POST',
+                    body: imgFormData,
+                });
+    
+                if (!response.ok) {
+                    throw new Error('Failed to upload image');
+                }
+    
+                const imgData = await response.json();
+                return imgData.fileUrl;
+            }));
+    
+            // Create a new post
+            const date = new Date().toISOString();
+            const response = await fetch('/climbs/createClimb', {
                 method: 'POST',
-                body: formData,
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ 
+                    userName: username, 
+                    caption, 
+                    videoFiles: videoURLs, 
+                    imgFiles: imgURLs, 
+                    dateCreated: date
+                }),
             });
     
             if (!response.ok) {
-                throw new Error('Network response was not ok');
+                throw new Error('Failed to create post');
             }
     
-            // Handle successful response
-            const result = await response.json();
-            console.log('Post submitted:', result);
+            const data = await response.json();
+            setPosts(prevPosts => [...prevPosts, data]);
             setCaption('');
             setVideoFiles([]);
             setImgFiles([]);
-            setMessage('Post submitted successfully');
+            setShowForm(false);
+            setMessage(null);
+            getPosts();
         } catch (err) {
-            console.error('Error submitting post:', err);
-            setMessage('Error submitting post');
+            console.error(err);
+            setMessage('Error creating post');
         }
     };
     
-
-    const getPosts = async() => {
+    useEffect(() => {
+        console.log("Updated POSTS:", posts);
+    }, [posts]);
+    
+    const getPosts = async () => {
         try {
             const response = await fetch('/climbs/getPosts', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
                 },
-                body: JSON.stringify({friends}),
+                body: JSON.stringify({ friends }),
             });
             const data = await response.json();
-            console.log(data)
-
-            
             setPosts(data);
-        }
-        catch(error){   
+        } catch (error) {
             console.error('Error getting posts: ', error);
         }
-    }
-
+    };
+    
     const handleVideoFileChange = (e) => {
         const files = Array.from(e.target.files);
         
@@ -347,9 +430,9 @@ const Posts = () => {
                     <div key={post._id} className='post'>
                         <p><strong>{post.userName}</strong>: {post.caption}</p>
                         <div className="media-slider">
-                            <button onClick={handlePrev}>{"<"}</button>
-                            {getCurrentMedia()}
-                            <button onClick={handleNext}>{">"}</button>
+                            <button onClick={() => handlePrev(post._id)}>{"<"}</button>
+                            {getCurrentMedia(post._id)}
+                            <button onClick={() => handleNext(post._id)}>{">"}</button>
                         </div>
                         <p>{new Date(post.dateCreated).toLocaleString()}</p>
                         <p>Likes: {post.likes.length}</p>
