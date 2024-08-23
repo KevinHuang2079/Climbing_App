@@ -1,5 +1,6 @@
 import React, { useMemo, useContext, useState, useEffect } from 'react';
 import { GlobalContext } from '../../GlobalContext';
+import '../../cssStuff/Posts.scss';
 
 const Posts = () => {
     const [posts, setPosts] = useState([]);
@@ -21,7 +22,7 @@ const Posts = () => {
 
 
     useEffect(() => {
-        getPosts(); // Assuming this function updates the `posts` state
+        getPosts(); 
     }, []);
      
     useEffect(() => {
@@ -36,7 +37,7 @@ const Posts = () => {
             });
         }
     }, [posts]);
-    
+
 
     const createPostMap = (posts) => {
         return posts.reduce((acc, post) => {
@@ -44,7 +45,7 @@ const Posts = () => {
             return acc;
         }, {});
     };
-    
+
     const postMap = useMemo(() => createPostMap(posts), [posts]);
     const handleNext = (postID) => {
         const imgFiles = postMap[postID].imgFiles;
@@ -342,7 +343,6 @@ const Posts = () => {
     };
     
     useEffect(() => {
-        console.log("Updated POSTS:", posts);
     }, [posts]);
     
     const getPosts = async () => {
@@ -363,9 +363,10 @@ const Posts = () => {
     
     const handleVideoFileChange = (e) => {
         const files = Array.from(e.target.files);
+        console.log("FILES", files);
         
-        if (files.length + videoFiles.length > 2) {
-            setMessage('You can only upload a maximum of 2 videos');
+        if (files.length + videoFiles.length > 1) {
+            setMessage('You can only upload a maximum of 1 videos');
             return;
         }
         setVideoFiles(prev => [...prev, ...files]);
@@ -375,13 +376,17 @@ const Posts = () => {
 
     const handleImgFileChange = (e) => {
         const files = Array.from(e.target.files);
-        if (files.length + imgFiles.length > 5) {
-            setMessage('You can only upload a maximum of 5 photos');
+        if (files.length + imgFiles.length > 1) {
+            setMessage('You can only upload a maximum of 1 photos');
             return;
         }
         setImgFiles(prev => [...prev, ...files]);
     };
 
+    const handleRemoveImage = (indexToRemove) => {
+        setImgFiles(prevFiles => prevFiles.filter((_, index) => index !== indexToRemove));
+    };
+    
     return (
         <div className='Posts'>
 
@@ -410,6 +415,14 @@ const Posts = () => {
                                 />
                             </div>
                             <div>
+                            {videoFiles.map((file, index) => (
+                                <video key={index} width="180" height="120" controls>
+                                    <source src={URL.createObjectURL(file)} type="video/mp4" />
+                                    Your browser does not support the video tag.
+                                </video>
+                            ))}
+                            </div>
+                            <div>
                                 <label>Upload Image</label>
                                 <input
                                     type='file'
@@ -418,6 +431,32 @@ const Posts = () => {
                                     onChange={handleImgFileChange}
                                 />
                             </div>
+                            {imgFiles.map((file, index) => (
+                                <div key={index} style={{ position: 'relative', display: 'inline-block', margin: '5px' }}>
+                                    <img
+                                        width="90"
+                                        height="60"
+                                        src={URL.createObjectURL(file)}
+                                        alt={`Preview ${index + 1}`}
+                                    />
+                                    <button
+                                        onClick={() => handleRemoveImage(index)}
+                                        style={{
+                                            position: 'absolute',
+                                            top: '0',
+                                            right: '0',
+                                            color: 'white',
+                                            border: 'none',
+                                            borderRadius: '50%',
+                                            width: '20px',
+                                            height: '20px',
+                                            cursor: 'pointer',
+                                        }}
+                                    >
+                                        X
+                                    </button>
+                                </div>
+                            ))}
                             <button type='submit'>Submit Post</button>
                         </form>
                         {message && <p>{message}</p>}
