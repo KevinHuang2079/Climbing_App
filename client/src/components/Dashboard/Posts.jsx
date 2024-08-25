@@ -151,6 +151,25 @@ const Posts = () => {
         }
     }
 
+    const getReplies = async(commentID) => {
+        try{
+            const date = new Date().toISOString();
+            const response = await fetch(`/climbs/getReplies?postID=${encodeURIComponent(commentID)}&date=${encodeURIComponent(date)}`, {
+                method: 'GET',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+            });
+            const replies = await response.json();
+            setDisplayedComments(prev => ({
+                ...prev, [commentID]: [ ...([] || prev[commentID]), ...replies]
+            }));
+        }
+        catch(err) {
+            console.error("CLIENT:", err);
+        }
+    }
+
     const handleImageChange = (e) => {
         const file = e.target.files[0];
         setCommentImage(file);
@@ -181,6 +200,7 @@ const Posts = () => {
                     return;
                 }
             }
+            const date = new Date().toISOString();
             const response = await fetch('/climbs/commentPost', {
                 method: 'PUT',
                 headers: {
@@ -191,6 +211,7 @@ const Posts = () => {
                     commentText: commentText, 
                     userID: userID, 
                     postID: postID, 
+                    dateCreated: date,
                     imgURL: imgURL, 
                 }),
             });
@@ -200,7 +221,7 @@ const Posts = () => {
             }
             const comment = await response.json();
             setDisplayedComments(prev => ({
-                ...prev, [postID]: [ ...([] || prev[postID]), comment]
+                ...prev, [postID]: [ ...(prev[postID] || []), comment]
             }));
             setCommentImage(null);
             setCommentText('');
@@ -209,6 +230,10 @@ const Posts = () => {
             console.error("Posts: Error submitting comment", err);
         }
     }
+
+    const handleReplySubmit = async() => {
+
+    }    
 
     const likePost = async (postID) => {
         setPosts(prevPosts => 
@@ -341,9 +366,7 @@ const Posts = () => {
             setMessage('Error creating post');
         }
     };
-    
-    useEffect(() => {
-    }, [posts]);
+
     
     const getPosts = async () => {
         try {
@@ -386,6 +409,12 @@ const Posts = () => {
     const handleRemoveImage = (indexToRemove) => {
         setImgFiles(prevFiles => prevFiles.filter((_, index) => index !== indexToRemove));
     };
+
+    const handleRemoveVideo = (indexToRemove) => {
+        setVideoFiles(prevFiles => prevFiles.filter((_, index) => index !== indexToRemove));
+    }
+
+    
     
     return (
         <div className='Posts'>
@@ -406,7 +435,7 @@ const Posts = () => {
                                 />
                             </div>
                             <div>
-                                <label>Upload Video</label>
+                                <label>Add Video</label>
                                 <input
                                     type='file'
                                     accept="video/*"
@@ -416,14 +445,36 @@ const Posts = () => {
                             </div>
                             <div>
                             {videoFiles.map((file, index) => (
-                                <video key={index} width="180" height="120" controls>
-                                    <source src={URL.createObjectURL(file)} type="video/mp4" />
-                                    Your browser does not support the video tag.
-                                </video>
+                                <div key={index} style={{ position:'relative', display:'inline-block'}}>
+                                    <video key={index} width="180" height="120" controls>
+                                        <source src={URL.createObjectURL(file)} type="video/mp4" />
+                                        Your browser does not support the video tag.
+                                    </video>
+                                    <button onClick={() => handleRemoveVideo(index)}
+                                        style={{
+                                            position: 'absolute',
+                                            top: '7px',
+                                            right: '0px',
+                                            color: 'white',
+                                            border: 'none',
+                                            borderRadius: '50%',
+                                            width: '25px',
+                                            height: '25px',
+                                            cursor: 'pointer',
+                                            textAlign: 'center',
+                                            lineHeight: '25px'
+                                        }}
+                                    >
+                                        X
+                                    </button>
+                                </div>
                             ))}
+                            <button>
+                                    
+                                    </button>
                             </div>
                             <div>
-                                <label>Upload Image</label>
+                                <label>Add Image</label>
                                 <input
                                     type='file'
                                     accept="image/*"
@@ -432,7 +483,7 @@ const Posts = () => {
                                 />
                             </div>
                             {imgFiles.map((file, index) => (
-                                <div key={index} style={{ position: 'relative', display: 'inline-block', margin: '5px' }}>
+                                <div key={index} style={{ position: 'relative', display: 'inline-block', margin: '0px' }}>
                                     <img
                                         width="90"
                                         height="60"
@@ -443,8 +494,8 @@ const Posts = () => {
                                         onClick={() => handleRemoveImage(index)}
                                         style={{
                                             position: 'absolute',
-                                            top: '0',
-                                            right: '0',
+                                            top: '-3px',
+                                            right: '2px',
                                             color: 'white',
                                             border: 'none',
                                             borderRadius: '50%',
@@ -468,11 +519,13 @@ const Posts = () => {
                 {posts.map(post => (
                     <div key={post._id} className='post'>
                         <p><strong>{post.userName}</strong>: {post.caption}</p>
-                        <div className="media-slider">
-                            <button onClick={() => handlePrev(post._id)}>{"<"}</button>
-                            {getCurrentMedia(post._id)}
-                            <button onClick={() => handleNext(post._id)}>{">"}</button>
-                        </div>
+                        {post.videoFiles || post.imgFiles || (
+                            <div className="media-slider">
+                                <button onClick={() => handlePrev(post._id)}>{"<"}</button>
+                                {getCurrentMedia(post._id)}
+                                <button onClick={() => handleNext(post._id)}>{">"}</button>
+                            </div>
+                        )}
                         <p>{new Date(post.dateCreated).toLocaleString()}</p>
                         <p>Likes: {post.likes.length}</p>
                         <button className="LikePostButton" onClick={() => likePost(post._id)}>Like Post</button>
@@ -506,6 +559,8 @@ const Posts = () => {
                                         {comment.imgFile && <img src={comment.imgFile} alt="" />}
                                         <p>Likes: { comment.likes.length}</p>
                                         <button onClick={() => likeComment(comment._id, post._id)}>Like</button>
+                                        <button onClick={() => handleReplySubmit(comment._id)}>Reply</button>
+
                                     </div>
                                 )}
                             </div>
