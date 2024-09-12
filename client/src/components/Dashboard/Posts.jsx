@@ -2,9 +2,6 @@ import React, { useMemo, useContext, useState, useEffect } from 'react';
 import { GlobalContext } from '../../GlobalContext';
 import '../../cssStuff/Posts.scss';
 
-//FIX COMMENT TEXTS
-//POSTS: media slider shouldn't render if images and videos are empty
-//FINISH REPLIES: it just doesn't work atm
 
 //FIX SUBMITS: they shouldn't be able to click fast enough and post multiple times 
 //If post deleted, all comments and replies should also be deleted
@@ -423,23 +420,26 @@ const Posts = () => {
 
     //REPLIES SECTION
     const getReplies = async(commentID) => {
-        try{
+        try {
             const date = new Date().toISOString();
-            const response = await fetch(`/climbs/getReplies?postID=${encodeURIComponent(commentID)}&date=${encodeURIComponent(date)}`, {
+            const response = await fetch(`/climbs/getReplies?commentID=${encodeURIComponent(commentID)}&date=${encodeURIComponent(date)}`, {
                 method: 'GET',
                 headers: {
                     'Content-Type': 'application/json',
                 },
             });
             const replies = await response.json();
+            console.log("REPLIES:", replies);
+    
+            // Update the state to display fetched replies
             setDisplayedReplies(prev => ({
                 ...prev, [commentID]: [ ...(prev[commentID] || []), ...replies]
             }));
+        } catch (err) {
+            console.error("Error fetching replies:", err);
         }
-        catch(err) {
-            console.error("CLIENT:", err);
-        }
-    }
+    };
+
     const handleReplySubmit = async(commentID) => {
         try{    
             let imgURL = '';
@@ -482,7 +482,7 @@ const Posts = () => {
             });
 
             if (!response.ok) {
-                throw new Error('Failed to submit comment');
+                throw new Error('Failed to submit reply');
             }
             const reply = await response.json();
             setDisplayedReplies(prev => ({
@@ -496,7 +496,7 @@ const Posts = () => {
             }));
         }
         catch (err) {
-            console.error("Posts: Error submitting comment", err);
+            console.error("Posts: Error submitting reply", err);
         }
     }   
     const handleReplyImageChange = (e) => {
@@ -715,32 +715,34 @@ const Posts = () => {
                                                     <div className="reply-form">
                                                         <textarea
                                                             placeholder="Add a reply..."
-                                                            value={replyText[comment._id]}
-                                                            onChange={(e)=> setReplyText(e.target.value)
-                                                            }
+                                                            value={replyText[comment._id] || ''}
+                                                            onChange={(e) => setReplyText(prev => ({
+                                                                ...prev,
+                                                                [comment._id]: e.target.value
+                                                            }))}
                                                         />
                                                         <input
                                                             type="file"
                                                             accept="image/*"
-                                                            onChange={handleReplyImageChange}
+                                                            onChange={(e) => handleReplyImageChange(e, comment._id)}
                                                         />
                                                         <button onClick={() => handleReplySubmit(comment._id)}>Submit</button>
                                                     </div>
                                                 </div>
                                             )}
-                                            {openReplies[comment._id] && displayedReplies[comment._id] && displayedReplies[comment._id].length > 0 &&(
-                                            <div className='replies-list'>
-                                                {displayedReplies[comment._id].map(reply =>
-                                                    <div key={reply._id} className='reply'>
-                                                        <p><strong>{reply.userName}</strong>: {reply.replyText}</p>
-                                                        <p>{new Date(reply.dateCreated).toLocaleString()}</p>
-                                                        {reply.imgFile && <img src={reply.imgFile} alt="" />}
-                                                        <p>Likes: { reply.likes.length}</p>
-                                                        <button onClick={() => likeReply(reply._id, comment._id)}>Like</button>
-
-                                                    </div>
-                                                )}
-                                            </div>
+                                            
+                                            {openReplies[comment._id] && displayedReplies[comment._id] && displayedReplies[comment._id].length > 0 && (
+                                                <div className="replies-list">
+                                                    {displayedReplies[comment._id].map(reply => (
+                                                        <div key={reply._id} className="reply">
+                                                            <p><strong>{reply.userName}</strong>: {reply.replyText}</p>
+                                                            <p>{new Date(reply.dateCreated).toLocaleString()}</p>
+                                                            {reply.imgFile && <img src={reply.imgFile} alt="" />}
+                                                            <p>Likes: {reply.likes.length}</p>
+                                                            <button onClick={() => likeReply(reply._id, comment._id)}>Like</button>
+                                                        </div>
+                                                    ))}
+                                                </div>
                                             )} 
                                         </div>
                                     )}
