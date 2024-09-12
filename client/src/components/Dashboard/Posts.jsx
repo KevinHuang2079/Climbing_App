@@ -4,9 +4,10 @@ import '../../cssStuff/Posts.scss';
 
 //FIX COMMENT TEXTS
 //POSTS: media slider shouldn't render if images and videos are empty
+//FINISH REPLIES: it just doesn't work atm
 
 //FIX SUBMITS: they shouldn't be able to click fast enough and post multiple times 
-//FINISH REPLIES: it just doesn't work atm
+//If post deleted, all comments and replies should also be deleted
 
 const Posts = () => {
     //POSTS
@@ -30,8 +31,8 @@ const Posts = () => {
     const [commentImage, setCommentImage] = useState({});//key=postID, value= imgValue
     
     //replies
-    const [openReplies, setOpenReplies] = useState({});//key={postID,commentID}, value=bool {tracks which comment has open replies}
-    const [displayedReplies, setDisplayedReplies] = useState({});//key=commentID, value=array {displayed replies for a comment}
+    const [openReplies, setOpenReplies] = useState({});//key={postID,commentID}, value=bool {tracks which comment's replies been toggled on}
+    const [displayedReplies, setDisplayedReplies] = useState({});//key=commentID, value=array {list of replies that should show up when toggled}
     const [replyText, setReplyText] = useState({});//key=commentID, value= stringText
     const [replyImage, setReplyImage] = useState({});//key=commentID, value= imgValue
 
@@ -70,6 +71,52 @@ const Posts = () => {
             setPosts(data);
         } catch (error) {
             console.error('Error getting posts: ', error);
+        }
+    };
+    const likePost = async (postID) => {
+        setPosts(prevPosts => 
+            prevPosts.map(post => 
+                post._id === postID 
+                ? { ...post, likes: post.likes.includes(userID) 
+                    ? post.likes.filter(id => id !== userID) 
+                    : [...post.likes, userID] }
+                : post
+            )
+        );
+    
+        try {
+            const response = await fetch('/climbs/likeAnUpload', {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ objectToLikeID: postID, userID, choice: 'post'}),
+            });
+    
+            if (!response.ok) {
+                const errorText = await response.text();
+                console.error(`Failed to like post: ${errorText}`);
+                //Revert the optimistic update
+                setPosts(prevPosts => 
+                    prevPosts.map(post => 
+                        post._id === postID 
+                        ? { ...post, likes: post.likes.includes(userID) 
+                            ? [...post.likes, userID] 
+                            : post.likes.filter(id => id !== userID) }
+                        : post
+                    )
+                );
+            }
+        } catch (err) {
+            console.error('Posts:', err);
+            //Revert the optimistic update in case of an error
+            setPosts(prevPosts => 
+                prevPosts.map(post => 
+                    post._id === postID 
+                    ? { ...post, likes: post.likes.includes(userID) ? [...post.likes, userID] : post.likes.filter(id => id !== userID) }
+                    : post
+                )
+            );
         }
     };
 
@@ -385,7 +432,6 @@ const Posts = () => {
                 },
             });
             const replies = await response.json();
-            console.log('YARN ADD', replies);
             setDisplayedReplies(prev => ({
                 ...prev, [commentID]: [ ...(prev[commentID] || []), ...replies]
             }));
@@ -420,7 +466,7 @@ const Posts = () => {
                 }
             }
             const date = new Date().toISOString();
-            const response = await fetch('/climbs/commentPost', {
+            const response = await fetch('/climbs/replyOnComment', {
                 method: 'PUT',
                 headers: {
                     'Content-Type': 'application/json',
@@ -443,9 +489,8 @@ const Posts = () => {
                 ...prev, 
                 [commentID]: [ ...(prev[commentID] || []), reply]
             }));
-            setCommentImage(null);
-            //const [commentText, setCommentText] = useState({});//key=postID, value= stringText
-            setCommentText(prev => ({
+            setReplyImage(null);
+            setReplyText(prev => ({
                 ...prev, 
                 [commentID]: ''
             }));
@@ -464,53 +509,54 @@ const Posts = () => {
             [commentID]: !prev[commentID]
         }));
     }
-
-    const likePost = async (postID) => {
-        setPosts(prevPosts => 
-            prevPosts.map(post => 
-                post._id === postID 
-                ? { ...post, likes: post.likes.includes(userID) 
-                    ? post.likes.filter(id => id !== userID) 
-                    : [...post.likes, userID] }
-                : post
+    const likeReply = async(replyID, commentID) => {
+        setDisplayedReplies(prevReplies => ({
+            ...prevReplies,
+            [commentID]: prevReplies[commentID].map(reply => 
+                reply._id === replyID 
+                ? { ...reply, likes: reply.likes.includes(userID) 
+                    ? reply.likes.filter(id => id !== userID) 
+                    : [...reply.likes, userID] }
+                : reply
             )
-        );
-    
+        }));
         try {
             const response = await fetch('/climbs/likeAnUpload', {
                 method: 'PUT',
                 headers: {
                     'Content-Type': 'application/json',
                 },
-                body: JSON.stringify({ objectToLikeID: postID, userID, choice: 'post'}),
+                body: JSON.stringify({ objectToLikeID: replyID, userID, choice: 'reply'}),
             });
-    
-            if (!response.ok) {
-                const errorText = await response.text();
-                console.error(`Failed to like post: ${errorText}`);
-                //Revert the optimistic update
-                setPosts(prevPosts => 
-                    prevPosts.map(post => 
-                        post._id === postID 
-                        ? { ...post, likes: post.likes.includes(userID) 
-                            ? [...post.likes, userID] 
-                            : post.likes.filter(id => id !== userID) }
-                        : post
+            if (!response){
+                setDisplayedReplies(prevReplies => ({
+                    ...prevReplies,
+                    [commentID]: prevReplies[commentID].map(reply => 
+                        reply._id === replyID 
+                        ? { ...reply, numLikes: reply.likes.includes(userID) 
+                            ? [...reply.likes, userID] 
+                            : reply.likes.filter(id => id !== userID) }
+                        : reply
                     )
-                );
+                }));
             }
-        } catch (err) {
-            console.error('Posts:', err);
-            //Revert the optimistic update in case of an error
-            setPosts(prevPosts => 
-                prevPosts.map(post => 
-                    post._id === postID 
-                    ? { ...post, likes: post.likes.includes(userID) ? [...post.likes, userID] : post.likes.filter(id => id !== userID) }
-                    : post
-                )
-            );
         }
-    };
+        catch(err) {
+            console.error("CLIENT:", err);
+            setDisplayedReplies(prevReplies => ({
+                ...prevReplies,
+                [commentID]: prevReplies[commentID].map(reply=> 
+                    reply._id === replyID 
+                    ? { ...reply, numLikes: reply.likes.includes(userID) 
+                        ? [...reply.likes, userID] 
+                        : reply.likes.filter(id => id !== userID) }
+                    : reply
+                )
+            }));
+        }
+    }
+
+    
     
     return (
         <div className='Posts'>
@@ -653,42 +699,56 @@ const Posts = () => {
                                     />
                                     <button onClick={() => handleCommentSubmit(post._id)}>Submit</button>
                                 </div>
-                            </div>
-                        )}
-                        {openComments[post._id] && displayedComments[post._id] && displayedComments[post._id].length > 0 &&(
-                            <div className='comment-list'>
-                                {displayedComments[post._id].map(comment =>
-                                    <div key={comment._id} className='comment'>
-                                        <p><strong>{comment.userName}</strong>: {comment.commentText}</p>
-                                        <p>{new Date(comment.dateCreated).toLocaleString()}</p>
-                                        {comment.imgFile && <img src={comment.imgFile} alt="" />}
-                                        <p>Likes: { comment.likes.length}</p>
-                                        <button onClick={() => likeComment(comment._id, post._id)}>Like</button>
-                                        <button onClick={() => {getReplies(comment._id); toggleReplies(comment._id)}}>Reply</button>
+                                {displayedComments[post._id] && displayedComments[post._id].length > 0 &&(
+                                <div className='comment-list'>
+                                    {displayedComments[post._id].map(comment =>
+                                        <div key={comment._id} className='comment'>
+                                            <p><strong>{comment.userName}</strong>: {comment.commentText}</p>
+                                            <p>{new Date(comment.dateCreated).toLocaleString()}</p>
+                                            {comment.imgFile && <img src={comment.imgFile} alt="" />}
+                                            <p>Likes: { comment.likes.length}</p>
+                                            <button onClick={() => likeComment(comment._id, post._id)}>Like</button>
+                                            <button onClick={() => {getReplies(comment._id); toggleReplies(comment._id)}}>Reply</button>
 
-                                        {openReplies[comment._id] && (
-                                            <div className="RepliesSection"> 
-                                                <div className="reply-form">
-                                                    <textarea
-                                                        placeholder="Add a reply..."
-                                                        value={replyText[comment._id]}
-                                                        onChange={(e)=> setReplyText(e.target.value)
-                                                        }
-                                                    />
-                                                    <input
-                                                        type="file"
-                                                        accept="image/*"
-                                                        onChange={handleReplyImageChange}
-                                                    />
-                                                    <button onClick={() => handleReplySubmit(comment._id)}>Submit</button>
+                                            {openReplies[comment._id] && (
+                                                <div className="RepliesSection"> 
+                                                    <div className="reply-form">
+                                                        <textarea
+                                                            placeholder="Add a reply..."
+                                                            value={replyText[comment._id]}
+                                                            onChange={(e)=> setReplyText(e.target.value)
+                                                            }
+                                                        />
+                                                        <input
+                                                            type="file"
+                                                            accept="image/*"
+                                                            onChange={handleReplyImageChange}
+                                                        />
+                                                        <button onClick={() => handleReplySubmit(comment._id)}>Submit</button>
+                                                    </div>
                                                 </div>
+                                            )}
+                                            {openReplies[comment._id] && displayedReplies[comment._id] && displayedReplies[comment._id].length > 0 &&(
+                                            <div className='replies-list'>
+                                                {displayedReplies[comment._id].map(reply =>
+                                                    <div key={reply._id} className='reply'>
+                                                        <p><strong>{reply.userName}</strong>: {reply.replyText}</p>
+                                                        <p>{new Date(reply.dateCreated).toLocaleString()}</p>
+                                                        {reply.imgFile && <img src={reply.imgFile} alt="" />}
+                                                        <p>Likes: { reply.likes.length}</p>
+                                                        <button onClick={() => likeReply(reply._id, comment._id)}>Like</button>
+
+                                                    </div>
+                                                )}
                                             </div>
-                                        )}
-                                        {/* re */}
-                                    </div>
-                                )}
-                            </div>
-                        )} 
+                                            )} 
+                                        </div>
+                                    )}
+                                </div>
+                                )} 
+                            </div>  
+                        )}
+                        
                     </div>
                 ))}
             </div>
