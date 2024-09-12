@@ -2,9 +2,9 @@ import React, { useMemo, useContext, useState, useEffect } from 'react';
 import { GlobalContext } from '../../GlobalContext';
 import '../../cssStuff/Posts.scss';
 
-//FIX COMMENT TEXTS: they need to be initialized for every commentID
-
+//FIX COMMENT TEXTS
 //POSTS: media slider shouldn't render if images and videos are empty
+
 //FIX SUBMITS: they shouldn't be able to click fast enough and post multiple times 
 //FINISH REPLIES: it just doesn't work atm
 
@@ -306,7 +306,7 @@ const Posts = () => {
         }
     }
 
-    const handleImageChange = (e) => {
+    const handleCommentImageChange = (e) => {
         const file = e.target.files[0];
         setCommentImage(file);
     }
@@ -385,17 +385,79 @@ const Posts = () => {
                 },
             });
             const replies = await response.json();
-            setDisplayedComments(prev => ({
-                ...prev, [commentID]: [ ...([] || prev[commentID]), ...replies]
+            console.log('YARN ADD', replies);
+            setDisplayedReplies(prev => ({
+                ...prev, [commentID]: [ ...(prev[commentID] || []), ...replies]
             }));
         }
         catch(err) {
             console.error("CLIENT:", err);
         }
     }
-    const handleReplySubmit = async() => {
+    const handleReplySubmit = async(commentID) => {
+        try{    
+            let imgURL = '';
+            if (replyImage){
+                try {
+                    const imgFormData = new FormData();
+                    imgFormData.append('file', replyImage);
+    
+                    const response = await fetch('http://localhost:5000/routes/replies/upload', {
+                        method: 'POST',
+                        body: imgFormData,
+                    });
+    
+                    if (!response.ok) {
+                        throw new Error('Network response was not ok');
+                    }
+    
+                    const imgData = await response.json();
+                    imgURL = imgData.fileUrl;
+                    console.log('Image URL:', imgURL);
+                } catch (err) {
+                    console.error(err);
+                    return;
+                }
+            }
+            const date = new Date().toISOString();
+            const response = await fetch('/climbs/commentPost', {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ 
+                    userName: username,
+                    replyText: replyText, 
+                    userID: userID, 
+                    commentID: commentID, 
+                    dateCreated: date,
+                    imgURL: imgURL, 
+                }),
+            });
 
+            if (!response.ok) {
+                throw new Error('Failed to submit comment');
+            }
+            const reply = await response.json();
+            setDisplayedReplies(prev => ({
+                ...prev, 
+                [commentID]: [ ...(prev[commentID] || []), reply]
+            }));
+            setCommentImage(null);
+            //const [commentText, setCommentText] = useState({});//key=postID, value= stringText
+            setCommentText(prev => ({
+                ...prev, 
+                [commentID]: ''
+            }));
+        }
+        catch (err) {
+            console.error("Posts: Error submitting comment", err);
+        }
     }   
+    const handleReplyImageChange = (e) => {
+        const file = e.target.files[0];
+        setReplyImage(file);
+    }
     const toggleReplies = async(commentID) => {
         setOpenReplies(prev => ({
             ...prev, 
@@ -556,11 +618,13 @@ const Posts = () => {
                 
             </div>
 
+
+
             <div className='showPosts-sections'>
                 {posts.map(post => (
                     <div key={post._id} className='post'>
                         <p><strong>{post.userName}</strong>: {post.caption}</p>
-                        {(post.videoFiles || post.imgFiles) && (
+                        {(post.videoFiles.length>0 || post.imgFiles.length>0) && (
                             <div className="media-slider">
                                 <button onClick={() => handlePrev(post._id)}>{"<"}</button>
                                 {getCurrentMedia(post._id)}
@@ -585,7 +649,7 @@ const Posts = () => {
                                     <input
                                         type="file"
                                         accept="image/*"
-                                        onChange={handleImageChange}
+                                        onChange={handleCommentImageChange}
                                     />
                                     <button onClick={() => handleCommentSubmit(post._id)}>Submit</button>
                                 </div>
@@ -602,6 +666,25 @@ const Posts = () => {
                                         <button onClick={() => likeComment(comment._id, post._id)}>Like</button>
                                         <button onClick={() => {getReplies(comment._id); toggleReplies(comment._id)}}>Reply</button>
 
+                                        {openReplies[comment._id] && (
+                                            <div className="RepliesSection"> 
+                                                <div className="reply-form">
+                                                    <textarea
+                                                        placeholder="Add a reply..."
+                                                        value={replyText[comment._id]}
+                                                        onChange={(e)=> setReplyText(e.target.value)
+                                                        }
+                                                    />
+                                                    <input
+                                                        type="file"
+                                                        accept="image/*"
+                                                        onChange={handleReplyImageChange}
+                                                    />
+                                                    <button onClick={() => handleReplySubmit(comment._id)}>Submit</button>
+                                                </div>
+                                            </div>
+                                        )}
+                                        {/* re */}
                                     </div>
                                 )}
                             </div>
