@@ -1,0 +1,26 @@
+Posts.jsx:
+
+    FIRST 
+        Issue: getReplies
+        - issue when clicking on the button that opens replies for a comment (passes in commentID)
+        - It duplicates the one reply that a comment had 
+
+        Reason: appends replies without checking if they've already been added
+        setDisplayedReplies(prev => ({
+            ...prev, 
+            [commentID]: [ ...(prev[commentID] || []), ...replies] //spreads the replies at commentID into new state and tacks on the replies
+        }));
+
+        solution: getReplies
+        checks if 
+        setDisplayedReplies(prev => ({
+            ...prev, 
+            [commentID]: [
+                ...(prev[commentID] || []), 
+                ...replies.filter(newReply => !(prev[commentID] || []).some(reply => reply._id === newReply._id)) // Prevent duplicates
+            ]
+        }));
+
+        - HOW THIS SHIT WORKS: replies.filter(newReply => !(prev[commentID] || []).some(reply => reply._id === newReply._id)) // Prevent duplicates
+        - .some checks if newReply is a duplicate (through an id comparison) returns true if there is an element that follows this criteria (=== to some element in replies old state)
+        - negating means that it will return false if it's a duplicate (and filter includes only elements that FOLLOW the criteria, meaning this duplicate will not be included in the new state)

@@ -433,7 +433,11 @@ const Posts = () => {
     
             // Update the state to display fetched replies
             setDisplayedReplies(prev => ({
-                ...prev, [commentID]: [ ...(prev[commentID] || []), ...replies]
+                ...prev, 
+                [commentID]: [
+                    ...(prev[commentID] || []), 
+                    ...replies.filter(newReply => !(prev[commentID] || []).some(reply => reply._id === newReply._id)) // Prevent duplicates
+                ]
             }));
         } catch (err) {
             console.error("Error fetching replies:", err);
