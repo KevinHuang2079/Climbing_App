@@ -614,7 +614,7 @@ const Posts = () => {
                             <div className="PostSubmission-VideoSection">
                                 <div>
                                     <label>Add Image</label>
-                                    <input
+                                    <input 
                                         type='file'
                                         accept="image/*"
                                         multiple
@@ -650,10 +650,10 @@ const Posts = () => {
                             </div>
 
                             <div className="PostSubmission-CaptionSection">
-                                <label>Caption</label>
-                                <input
+                                <textarea 
                                     type='text'
                                     value={caption}
+                                    placeholder='Caption...'
                                     onChange={(e) => setCaption(e.target.value)}
                                     required
                                 />
@@ -717,7 +717,7 @@ const Posts = () => {
                                             {openReplies[comment._id] && (
                                                 <div className="RepliesSection"> 
                                                     <div className="reply-form">
-                                                        <textarea
+                                                        <textarea 
                                                             placeholder="Add a reply..."
                                                             value={replyText[comment._id] || ''}
                                                             onChange={(e) => setReplyText(prev => ({

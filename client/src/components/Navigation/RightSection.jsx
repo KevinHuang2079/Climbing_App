@@ -12,22 +12,22 @@ function RightSection ({ userID, username }) {
 
     return(
         <div className="RightSection">
+            <div className='container'>
+                <div className="Suggested">
+                    <h2>Suggested Climbers</h2>
+                    <span>Find new ways to connect with climbers in your community.</span>
+                    <input 
+                        className='findClimbersButton'
+                        type="button"
+                        onClick={handleReccomended}
+                        value="Recommended Climbers"
+                    />
+                </div>
 
-            <div className="Suggested">
-                <h2>Suggested Climbers</h2>
-                <span>Find new ways to connect with climbers in your community.</span>
-                <input 
-                    className='findClimbersButton'
-                    type="button"
-                    onClick={handleReccomended}
-                    value="Recommended Climbers"
-                />
+                <div className="Contacts"> 
+                    <Contacts/>
+                </div>
             </div>
-
-            <div className="Contacts"> 
-                <Contacts/>
-            </div>
-            
         </div>
     )
 }

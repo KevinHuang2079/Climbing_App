@@ -1,49 +1,99 @@
 .LeftSection {
     .container {
-        flex: 14;
-        padding: 30px;
-        position: sticky;
-        top: 70px;
-        border-right: 1px solid lightgray;
-        border-radius: 5px;
-
-        .home, .explore, .friends, .groups, .climbs {
-            display: flex;
-            align-items: center;
-            padding: 10px;
-            margin-bottom: 10px;
-            transition: background-color 0.3s ease;
-            border-radius: 5px;
-
-            &:hover {
-                background-color: #ececec;
-            }
-
-            a {
-                display: flex;
-                align-items: center;
-                text-decoration: none;
-                color: inherit;
-
-                img {
-                    width: 40px;
-                    height: 40px;
-                    border-radius: 50%;
-                    object-fit: cover;
-                    margin-right: 10px;
-                }
-
-                span {
-                    font-size: 1rem;
-                    font-weight: bold;
-                    border-bottom: 2px solid transparent;
-                    transition: border-bottom 0.3s ease;
-
-                    &:hover {
-                        border-bottom: 2px solid purple;
-                    }
-                }
-            }
+      flex: 14;
+      padding: 30px;
+      position: sticky;
+      top: 70px;
+      border-right: 1px solid lightgray;
+      border-radius: 8px; 
+      background-color: #f9f9f9; 
+      box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1); 
+  
+      .home,
+      .explore,
+      .friends,
+      .groups,
+      .climbs {
+        display: flex;
+        align-items: center;
+        padding: 12px 15px;
+        margin-bottom: 12px;
+        border-radius: 6px;
+        transition: background-color 0.3s ease, transform 0.2s ease;
+        cursor: pointer;
+  
+        &:hover {
+          background-color: #e6e6e6;
+          transform: translateY(-2px); 
         }
+  
+        a {
+          display: flex;
+          align-items: center;
+          text-decoration: none;
+          color: #333; 
+          transition: color 0.3s ease;
+  
+          &:hover {
+            color: #6a3a9a; 
+          }
+  
+          img {
+            width: 45px;
+            height: 45px;
+            border-radius: 50%;
+            object-fit: cover;
+            margin-right: 12px;
+            border: 2px solid #ddd; 
+            transition: border 0.3s ease;
+  
+            &:hover {
+              border: 2px solid #6a3a9a; 
+            }
+          }
+  
+          span {
+            font-size: 1.1rem; 
+            font-weight: 600; 
+            border-bottom: 2px solid transparent;
+            transition: border-bottom 0.3s ease, color 0.3s ease;
+  
+            &:hover {
+              border-bottom: 2px solid #6a3a9a;
+            }
+          }
+        }
+      }
     }
-}
+  }
+  
+  @media (max-width: 768px) {
+    .LeftSection {
+      .container {
+        padding: 20px;
+        flex: 1; 
+        border-right: none;
+        border-radius: 0;
+  
+        .home,
+        .explore,
+        .friends,
+        .groups,
+        .climbs {
+          padding: 10px;
+          margin-bottom: 8px;
+  
+          img {
+            width: 35px;
+            height: 35px;
+            margin-right: 8px;
+          }
+  
+          span {
+            font-size: 1rem;
+          }
+        }
+      }
+    }
+  }
+  
